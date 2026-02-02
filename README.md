@@ -139,7 +139,7 @@ Primary Palette: https://coolors.co/f2d7ee-a5668b-845a6d-1b1b1e-eddea4
 ---
 
 ## Project Status
-- [ ] Frontend setup and structure
+- [x] Frontend setup and structure
 - [ ] Authentication implementation
 - [ ] Class management system
 - [ ] Enrollment system
