@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="MOOD - User Profile" />
+    <meta name="theme-color" content="#845A6D" />
+
+    <title>MOOD - Profile</title>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+
+  <body>
+    <!-- Header will be dynamically injected here -->
+    <header id="dy-header"></header>
+
+    <main class="main-content">
+      <section id="profile" class="section">
+        <div class="container">
+          <div class="profile-content">
+            <div class="profile-sidebar">
+              <div class="user-info" id="userInfo">
+                <!-- User information will be loaded here -->
+              </div>
+              <nav class="profile-nav">
+                <button class="profile-nav-btn active" data-tab="enrollments">
+                  My Enrollments
+                </button>
+                <button class="profile-nav-btn" data-tab="payments">
+                  Payments
+                </button>
+                <button class="profile-nav-btn" data-tab="attendance">
+                  Attendance
+                </button>
+              </nav>
+            </div>
+            <div class="profile-main">
+              <div id="enrollments" class="profile-tab active">
+                <h3>My Enrolled Classes</h3>
+                <div id="enrollmentsContainer">
+                  <!-- Enrolled classes will be displayed here -->
+                </div>
+              </div>
+              <div id="payments" class="profile-tab">
+                <h3>Payment History</h3>
+                <div id="paymentsContainer">
+                  <!-- Payment history will be displayed here -->
+                </div>
+              </div>
+              <div id="attendance" class="profile-tab">
+                <h3>Attendance Records</h3>
+                <div id="attendanceContainer">
+                  <!-- Attendance records will be displayed here -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer will be dynamically injected here -->
+    <footer id="dy-footer"></footer>
+
+    <!-- Scripts -->
+    <script type="module" src="../js/profile-page.js"></script>
+  </body>
+</html>

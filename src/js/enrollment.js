@@ -219,3 +219,7 @@ class EnrollmentManager {
 
 // Create global enrollment manager instance
 const enrollmentManager = new EnrollmentManager();
+
+// Export for use in other modules
+export { EnrollmentManager, enrollmentManager };
+export default EnrollmentManager;

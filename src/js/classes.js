@@ -15,6 +15,8 @@ class ClassManager {
     try {
       // This will be replaced with actual API call
       // return await api.get('/classes');
+      // For now, return local data, in the future the classes would be stored
+      // in a cloud database and fetched via API.
 
       return this.classes;
     } catch (error) {
@@ -39,7 +41,7 @@ class ClassManager {
   }
 
   /**
-   * Create new class (Admin only)
+   * Create new class (Admin)
    */
   async createClass(classData) {
     try {
@@ -68,7 +70,7 @@ class ClassManager {
   }
 
   /**
-   * Update class (Admin only)
+   * Update class (Admin)
    */
   async updateClass(classId, updates) {
     try {
@@ -94,7 +96,7 @@ class ClassManager {
   }
 
   /**
-   * Delete class (Admin only)
+   * Delete class (Admin)
    */
   async deleteClass(classId) {
     try {
@@ -258,3 +260,6 @@ class ClassManager {
 
 // Create global class manager instance
 const classManager = new ClassManager();
+// Export for use in other modules
+export { ClassManager, classManager };
+export default ClassManager;

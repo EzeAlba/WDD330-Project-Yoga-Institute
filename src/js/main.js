@@ -304,8 +304,8 @@ document.addEventListener("click", (e) => {
  * Show a specific section and hide others
  */
 function showSection(sectionId) {
-  document.querySelectorAll(".section").forEach((section) => {
-    section.style.display = "none";
+  document.querySelectorAll(".section").forEach((sec) => {
+    sec.style.display = "none";
   });
   const section = document.getElementById(sectionId);
   if (section) {

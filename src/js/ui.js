@@ -430,7 +430,9 @@ class UIManager {
   }
 }
 
-// Initialize UI manager when DOM is ready
-document.addEventListener("DOMContentLoaded", () => {
-  const uiManager = new UIManager();
-});
+// Create global UI manager instance
+const uiManager = new UIManager();
+
+// Export for use in other modules
+export { UIManager, uiManager };
+export default UIManager;

@@ -193,3 +193,7 @@ class PaymentManager {
 
 // Create global payment manager instance
 const paymentManager = new PaymentManager();
+
+// Export for use in other modules
+export { PaymentManager, paymentManager };
+export default PaymentManager;

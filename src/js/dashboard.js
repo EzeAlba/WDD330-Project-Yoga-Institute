@@ -166,9 +166,10 @@ class DashboardManager {
   calculateAverageOccupancy(classes) {
     if (classes.length === 0) return 0;
 
-    const occupancy = classes.reduce((sum, c) => {
-      return sum + c.enrolledStudents.length / c.maxStudents;
-    }, 0);
+    const occupancy = classes.reduce(
+      (sum, c) => sum + c.enrolledStudents.length / c.maxStudents,
+      0,
+    );
 
     return Math.round((occupancy / classes.length) * 100);
   }
@@ -220,3 +221,7 @@ class DashboardManager {
 
 // Create global dashboard manager instance
 const dashboardManager = new DashboardManager();
+
+// Export for use in other modules
+export { DashboardManager, dashboardManager };
+export default DashboardManager;

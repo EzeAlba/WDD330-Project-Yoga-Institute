@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="MOOD - Yoga Institute Platform for class booking, attendance tracking, and management"
+    />
+    <meta name="theme-color" content="#845A6D" />
+
+    <title>MOOD - Home</title>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+
+  <body>
+    <!-- Header will be dynamically injected here -->
+    <header id="dy-header"></header>
+
+    <main class="main-content">
+      <section id="home" class="section">
+        <div class="container">
+          <div class="hero">
+            <h2>Welcome to MOOD</h2>
+            <p>Your Personal Yoga Journey Starts Here</p>
+            <div id="authContainer">
+              <button id="loginBtn" class="btn btn-primary">Login</button>
+              <button id="registerBtn" class="btn btn-secondary">
+                Register
+              </button>
+            </div>
+            <div id="userGreeting" style="display: none">
+              <p id="greetingText"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <span class="close" id="closeLoginModal">&times;</span>
+        <h2>Login</h2>
+        <form id="loginForm" class="form">
+          <div class="form-group">
+            <label for="loginEmail">Email:</label>
+            <input type="email" id="loginEmail" class="input" required />
+          </div>
+          <div class="form-group">
+            <label for="loginPassword">Password:</label>
+            <input type="password" id="loginPassword" class="input" required />
+          </div>
+          <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Registration Modal -->
+    <div id="registerModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <span class="close" id="closeRegisterModal">&times;</span>
+        <h2>Register</h2>
+        <form id="registerForm" class="form">
+          <div class="form-group">
+            <label for="registerEmail">Email:</label>
+            <input type="email" id="registerEmail" class="input" required />
+          </div>
+          <div class="form-group">
+            <label for="registerPassword">Password:</label>
+            <input
+              type="password"
+              id="registerPassword"
+              class="input"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="registerName">Full Name:</label>
+            <input type="text" id="registerName" class="input" required />
+          </div>
+          <div class="form-group">
+            <label for="registerRole">Account Type:</label>
+            <select id="registerRole" class="input" required>
+              <option value="student">Student</option>
+              <option value="instructor">Instructor</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Register</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Footer will be dynamically injected here -->
+    <footer id="dy-footer"></footer>
+
+    <!-- Scripts -->
+    <script type="module" src="../js/home.js"></script>
+  </body>
+</html>

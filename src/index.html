@@ -1,220 +1,230 @@
 <!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="MOOD - Yoga Institute Platform for class booking, attendance tracking, and management"
+    />
+    <meta name="theme-color" content="#845A6D" />
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description"
-    content="MOOD - Yoga Institute Platform for class booking, attendance tracking, and management" />
-  <meta name="theme-color" content="#845A6D" />
+    <title>MOOD - Yoga Institute</title>
 
-  <title>MOOD - Yoga Institute</title>
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
 
-  <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/style.css" />
-</head>
-
-<body>
-  <!-- Navigation Bar -->
-  <nav class="navbar" id="navbar">
-    <div class="navbar-container">
-      <div class="navbar-brand">
-        <h1 class="logo">🧘 MOOD</h1>
-      </div>
-      <ul class="navbar-menu" id="navbarMenu">
-        <li><a href="#home" class="nav-link">Home</a></li>
-        <li><a href="#classes" class="nav-link">Classes</a></li>
-        <li>
-          <a href="#profile" class="nav-link" id="profileLink">Profile</a>
-        </li>
-        <li>
-          <a href="#logout" class="nav-link" id="logoutLink" style="display: none">Logout</a>
-        </li>
-      </ul>
-      <button class="menu-toggle" id="menuToggle">☰</button>
-    </div>
-  </nav>
-
-  <!-- Main Content -->
-  <main class="main-content">
-    <!-- Home Section -->
-    <section id="home" class="section">
-      <div class="container">
-        <div class="hero">
-          <h2>Welcome to MOOD</h2>
-          <p>Your Personal Yoga Journey Starts Here</p>
-          <div id="authContainer">
-            <button id="loginBtn" class="btn btn-primary">Login</button>
-            <button id="registerBtn" class="btn btn-secondary">
-              Register
-            </button>
-          </div>
-          <div id="userGreeting" style="display: none">
-            <p id="greetingText"></p>
-          </div>
+  <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar" id="navbar">
+      <div class="navbar-container">
+        <div class="navbar-brand">
+          <h1 class="logo">🧘 MOOD</h1>
         </div>
+        <ul class="navbar-menu" id="navbarMenu">
+          <li><a href="#home" class="nav-link">Home</a></li>
+          <li><a href="#classes" class="nav-link">Classes</a></li>
+          <li>
+            <a href="#profile" class="nav-link" id="profileLink">Profile</a>
+          </li>
+          <li>
+            <a
+              href="#logout"
+              class="nav-link"
+              id="logoutLink"
+              style="display: none"
+              >Logout</a
+            >
+          </li>
+        </ul>
+        <button class="menu-toggle" id="menuToggle">☰</button>
       </div>
-    </section>
+    </nav>
 
-    <!-- Classes Section -->
-    <section id="classes" class="section">
-      <div class="container">
-        <h2>Yoga Classes</h2>
-        <div class="filters">
-          <input type="text" id="searchInput" placeholder="Search classes..." class="input" />
-          <select id="difficultyFilter" class="input">
-            <option value="">All Levels</option>
-            <option value="beginner">Beginner</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
-          </select>
-          <select id="dayFilter" class="input">
-            <option value="">All Days</option>
-            <option value="monday">Monday</option>
-            <option value="tuesday">Tuesday</option>
-            <option value="wednesday">Wednesday</option>
-            <option value="thursday">Thursday</option>
-            <option value="friday">Friday</option>
-            <option value="saturday">Saturday</option>
-            <option value="sunday">Sunday</option>
-          </select>
-        </div>
-        <div id="classesContainer" class="classes-grid">
-          <!-- Classes will be dynamically loaded here -->
-        </div>
-      </div>
-    </section>
-
-    <!-- Profile Section -->
-    <section id="profile" class="section" style="display: none">
-      <div class="container">
-        <div class="profile-content">
-          <div class="profile-sidebar">
-            <div class="user-info" id="userInfo">
-              <!-- User information will be loaded here -->
+    <main class="main-content">
+      <section id="home" class="section">
+        <div class="container">
+          <div class="hero">
+            <h2>Welcome to MOOD</h2>
+            <p>Your Personal Yoga Journey Starts Here</p>
+            <div id="authContainer">
+              <button id="loginBtn" class="btn btn-primary">Login</button>
+              <button id="registerBtn" class="btn btn-secondary">
+                Register
+              </button>
             </div>
-            <nav class="profile-nav">
-              <button class="profile-nav-btn active" data-tab="enrollments">
-                My Enrollments
-              </button>
-              <button class="profile-nav-btn" data-tab="payments">
-                Payments
-              </button>
-              <button class="profile-nav-btn" data-tab="attendance">
-                Attendance
-              </button>
-            </nav>
+            <div id="userGreeting" style="display: none">
+              <p id="greetingText"></p>
+            </div>
           </div>
-          <div class="profile-main">
-            <div id="enrollments" class="profile-tab active">
-              <h3>My Enrolled Classes</h3>
-              <div id="enrollmentsContainer">
-                <!-- Enrolled classes will be displayed here -->
+        </div>
+      </section>
+
+      <section id="classes" class="section">
+        <div class="container">
+          <h2>Yoga Classes</h2>
+          <div class="filters">
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Search classes..."
+              class="input"
+            />
+            <select id="difficultyFilter" class="input">
+              <option value="">All Levels</option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+            <select id="dayFilter" class="input">
+              <option value="">All Days</option>
+              <option value="monday">Monday</option>
+              <option value="tuesday">Tuesday</option>
+              <option value="wednesday">Wednesday</option>
+              <option value="thursday">Thursday</option>
+              <option value="friday">Friday</option>
+              <option value="saturday">Saturday</option>
+              <option value="sunday">Sunday</option>
+            </select>
+          </div>
+          <div id="classesContainer" class="classes-grid">
+            <!-- Classes will be dynamically loaded here -->
+          </div>
+        </div>
+      </section>
+
+      <section id="profile" class="section" style="display: none">
+        <div class="container">
+          <div class="profile-content">
+            <div class="profile-sidebar">
+              <div class="user-info" id="userInfo">
+                <!-- User information will be loaded here -->
+              </div>
+              <nav class="profile-nav">
+                <button class="profile-nav-btn active" data-tab="enrollments">
+                  My Enrollments
+                </button>
+                <button class="profile-nav-btn" data-tab="payments">
+                  Payments
+                </button>
+                <button class="profile-nav-btn" data-tab="attendance">
+                  Attendance
+                </button>
+              </nav>
+            </div>
+            <div class="profile-main">
+              <div id="enrollments" class="profile-tab active">
+                <h3>My Enrolled Classes</h3>
+                <div id="enrollmentsContainer">
+                  <!-- Enrolled classes will be displayed here -->
+                </div>
+              </div>
+              <div id="payments" class="profile-tab">
+                <h3>Payment History</h3>
+                <div id="paymentsContainer">
+                  <!-- Payment history will be displayed here -->
+                </div>
+              </div>
+              <div id="attendance" class="profile-tab">
+                <h3>Attendance Records</h3>
+                <div id="attendanceContainer">
+                  <!-- Attendance records will be displayed here -->
+                </div>
               </div>
             </div>
-            <div id="payments" class="profile-tab">
-              <h3>Payment History</h3>
-              <div id="paymentsContainer">
-                <!-- Payment history will be displayed here -->
-              </div>
-            </div>
-            <div id="attendance" class="profile-tab">
-              <h3>Attendance Records</h3>
-              <div id="attendanceContainer">
-                <!-- Attendance records will be displayed here -->
-              </div>
-            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Admin Dashboard Section -->
-    <section id="dashboard" class="section" style="display: none">
+      <section id="dashboard" class="section" style="display: none">
+        <div class="container">
+          <h2>Admin Dashboard</h2>
+          <div class="dashboard-grid" id="dashboardGrid">
+            <!-- Dashboard widgets will be loaded here -->
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="classModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <span class="close" id="closeModal">&times;</span>
+        <div id="classDetails">
+          <!-- Class details will be displayed here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for Login -->
+    <div id="loginModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <span class="close" id="closeLoginModal">&times;</span>
+        <h2>Login</h2>
+        <form id="loginForm" class="form">
+          <div class="form-group">
+            <label for="loginEmail">Email:</label>
+            <input type="email" id="loginEmail" class="input" required />
+          </div>
+          <div class="form-group">
+            <label for="loginPassword">Password:</label>
+            <input type="password" id="loginPassword" class="input" required />
+          </div>
+          <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal for Registration -->
+    <div id="registerModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <span class="close" id="closeRegisterModal">&times;</span>
+        <h2>Register</h2>
+        <form id="registerForm" class="form">
+          <div class="form-group">
+            <label for="registerEmail">Email:</label>
+            <input type="email" id="registerEmail" class="input" required />
+          </div>
+          <div class="form-group">
+            <label for="registerPassword">Password:</label>
+            <input
+              type="password"
+              id="registerPassword"
+              class="input"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="registerName">Full Name:</label>
+            <input type="text" id="registerName" class="input" required />
+          </div>
+          <div class="form-group">
+            <label for="registerRole">Account Type:</label>
+            <select id="registerRole" class="input" required>
+              <option value="student">Student</option>
+              <option value="instructor">Instructor</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Register</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="dy-footer">
       <div class="container">
-        <h2>Admin Dashboard</h2>
-        <div class="dashboard-grid" id="dashboardGrid">
-          <!-- Dashboard widgets will be loaded here -->
-        </div>
+        <p>&copy; 2026 MOOD - Yoga Institute. All rights reserved.</p>
       </div>
-    </section>
-  </main>
+    </footer>
 
-  <!-- Modal for Class Details -->
-  <div id="classModal" class="modal" style="display: none">
-    <div class="modal-content">
-      <span class="close" id="closeModal">&times;</span>
-      <div id="classDetails">
-        <!-- Class details will be displayed here -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal for Login -->
-  <div id="loginModal" class="modal" style="display: none">
-    <div class="modal-content">
-      <span class="close" id="closeLoginModal">&times;</span>
-      <h2>Login</h2>
-      <form id="loginForm" class="form">
-        <div class="form-group">
-          <label for="loginEmail">Email:</label>
-          <input type="email" id="loginEmail" class="input" required />
-        </div>
-        <div class="form-group">
-          <label for="loginPassword">Password:</label>
-          <input type="password" id="loginPassword" class="input" required />
-        </div>
-        <button type="submit" class="btn btn-primary">Login</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Modal for Registration -->
-  <div id="registerModal" class="modal" style="display: none">
-    <div class="modal-content">
-      <span class="close" id="closeRegisterModal">&times;</span>
-      <h2>Register</h2>
-      <form id="registerForm" class="form">
-        <div class="form-group">
-          <label for="registerEmail">Email:</label>
-          <input type="email" id="registerEmail" class="input" required />
-        </div>
-        <div class="form-group">
-          <label for="registerPassword">Password:</label>
-          <input type="password" id="registerPassword" class="input" required />
-        </div>
-        <div class="form-group">
-          <label for="registerName">Full Name:</label>
-          <input type="text" id="registerName" class="input" required />
-        </div>
-        <div class="form-group">
-          <label for="registerRole">Account Type:</label>
-          <select id="registerRole" class="input" required>
-            <option value="student">Student</option>
-            <option value="instructor">Instructor</option>
-          </select>
-        </div>
-        <button type="submit" class="btn btn-primary">Register</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container">
-      <p>&copy; 2026 MOOD - Yoga Institute. All rights reserved.</p>
-    </div>
-  </footer>
-
-  <!-- Scripts -->
-  <script type="module" src="js/api.js"></script>
-  <script type="module" src="js/auth.js"></script>
-  <script type="module" src="js/classes.js"></script>
-  <script type="module" src="js/enrollment.js"></script>
-  <script type="module" src="js/payment.js"></script>
-  <script type="module" src="js/dashboard.js"></script>
-  <script type="module" src="js/ui.js"></script>
-  <script type="module" src="js/main.js"></script>
-</body>
-
+    <!-- Scripts -->
+    <script type="module" src="js/api.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/classes.js"></script>
+    <script type="module" src="js/enrollment.js"></script>
+    <script type="module" src="js/payment.js"></script>
+    <script type="module" src="js/dashboard.js"></script>
+    <script type="module" src="js/ui.js"></script>
+    <script type="module" src="js/main.js"></script>
+  </body>
 </html>

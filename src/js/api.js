@@ -1,11 +1,11 @@
-/**
- * API Integration Module
- * Handles all external API interactions and centralized fetch/error handling
+/*
+ API Module
+ Handles all external API interactions and centralized fetch/error handling
  */
 
 class APIHandler {
   constructor() {
-    this.baseURL = "https://api.example.com"; // Replace with actual API endpoint
+    this.baseURL = "https://api.example.com"; //This will be replaced with actual API endpoint
     this.timeout = 5000;
     this.headers = {
       "Content-Type": "application/json",
@@ -103,3 +103,6 @@ class APIHandler {
 
 // Create global API instance
 const api = new APIHandler();
+// Export for use in other modules
+export { APIHandler, api };
+export default APIHandler;
