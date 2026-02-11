@@ -2,8 +2,16 @@
  * Payment Module
  * Handles class payment processing and payment tracking
  */
+import AuthManager from "./auth.js";
+import ClassManager from "./classes.js";
+import EnrollmentManager from "./enrollment.js";
 
-class PaymentManager {
+const authManager = new AuthManager();
+const classManager = new ClassManager();
+const enrollmentManager = new EnrollmentManager();
+
+
+export default class PaymentManager {
   constructor() {
     this.payments = this.loadPayments();
   }
@@ -191,9 +199,3 @@ class PaymentManager {
   }
 }
 
-// Create global payment manager instance
-const paymentManager = new PaymentManager();
-
-// Export for use in other modules
-export { PaymentManager, paymentManager };
-export default PaymentManager;

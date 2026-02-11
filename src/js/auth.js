@@ -3,10 +3,44 @@
  * Handles user login, registration, and session management
  */
 
-class AuthManager {
+//Adding Google Firebase for authentication (optional, can be replaced with custom backend)
+import { auth, provider, db } from "./firebase";
+import { onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import APIHandler from "./api";
+
+export async function loginWithGoogle() {
+  const result = await signInWithPopup(auth, provider);
+  const user = result.user;
+
+  const userRef = doc(db, "users", user.uid);
+  const userSnap = await getDoc(userRef);
+
+  // If user does NOT exist, create it
+  if (!userSnap.exists()) {
+    await setDoc(userRef, {
+      uid: user.uid,
+      name: user.displayName,
+      email: user.email,
+      role: "student", // default role
+      createdAt: new Date()
+    });
+  }
+
+  return user;
+}
+
+export async function logoutUser() {
+  await signOut(auth);
+}
+
+const api = new APIHandler();
+
+export default class AuthManager {
   constructor() {
     this.currentUser = this.loadUser();
     this.isAuthenticated = !!this.currentUser;
+    this.initAuthListener();
   }
 
   /**
@@ -14,25 +48,8 @@ class AuthManager {
    */
   async login(email, password) {
     try {
-      // This will be replaced with actual API call
-      // const response = await api.post('/auth/login', { email, password });
-
-      // Mock authentication for development
-      const user = {
-        id: "user_" + Math.random().toString(36).substr(2, 9),
-        email: email,
-        name: email.split("@")[0],
-        role: "student",
-        loginTime: new Date().toISOString(),
-      };
-
-      this.currentUser = user;
-      this.isAuthenticated = true;
-      this.saveUser(user);
-
-      // Update API token
-      api.setAuthToken(user.id);
-
+      // Transitioned to Firebase Google login
+      const user = await this.loginWithGoogle();
       return user;
     } catch (error) {
       console.error("Login failed:", error);
@@ -45,29 +62,8 @@ class AuthManager {
    */
   async register(email, password, name, role) {
     try {
-      // This will be replaced with actual API call
-      // const response = await api.post('/auth/register', { email, password, name, role });
-
-      // Mock registration for development
-      const user = {
-        id: "user_" + Math.random().toString(36).substr(2, 9),
-        email: email,
-        name: name,
-        role: role,
-        registrationDate: new Date().toISOString(),
-        profile: {
-          healthInfo: "",
-          personalInfo: "",
-        },
-      };
-
-      this.currentUser = user;
-      this.isAuthenticated = true;
-      this.saveUser(user);
-
-      // Update API token
-      api.setAuthToken(user.id);
-
+      // Transitioned to Firebase Google login (no separate registration needed)
+      const user = await this.loginWithGoogle();
       return user;
     } catch (error) {
       console.error("Registration failed:", error);
@@ -78,7 +74,8 @@ class AuthManager {
   /**
    * User logout
    */
-  logout() {
+  async logout() {
+    await logoutUser();
     this.currentUser = null;
     this.isAuthenticated = false;
     this.removeUser();
@@ -144,9 +141,63 @@ class AuthManager {
       throw error;
     }
   }
-}
 
-// Create global auth manager instance
-const authManager = new AuthManager();
-// Export for use in other modules
-export { AuthManager, authManager };
+  async loginWithGoogle() {
+    const result = await signInWithPopup(auth, provider);
+    const user = await this.getOrCreateUser(result.user);
+    this.setSession(user);
+    return user;
+  }
+
+  async getOrCreateUser(firebaseUser) {
+    const userRef = doc(db, "users", firebaseUser.uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      const newUser = {
+        uid: firebaseUser.uid,
+        name: firebaseUser.displayName || firebaseUser.email?.split("@")[0],
+        email: firebaseUser.email,
+        role: "student",
+        createdAt: new Date()
+      };
+      await setDoc(userRef, newUser);
+      return {
+        id: firebaseUser.uid,
+        ...newUser,
+        loginTime: new Date().toISOString()
+      };
+    }
+
+    const data = userSnap.data();
+    return {
+      id: firebaseUser.uid,
+      uid: firebaseUser.uid,
+      name: data.name || firebaseUser.displayName || firebaseUser.email?.split("@")[0],
+      email: data.email || firebaseUser.email,
+      role: data.role || "student",
+      loginTime: new Date().toISOString()
+    };
+  }
+
+  setSession(user) {
+    this.currentUser = user;
+    this.isAuthenticated = true;
+    this.saveUser(user);
+    api.setAuthToken(user.id);
+  }
+
+  initAuthListener() {
+    onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        const user = await this.getOrCreateUser(firebaseUser);
+        this.setSession(user);
+      } else {
+        this.currentUser = null;
+        this.isAuthenticated = false;
+        this.removeUser();
+        api.setAuthToken(null);
+      }
+    });
+  }
+}

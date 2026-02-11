@@ -3,7 +3,7 @@
  Handles all external API interactions and centralized fetch/error handling
  */
 
-class APIHandler {
+export default class APIHandler {
   constructor() {
     this.baseURL = "https://api.example.com"; //This will be replaced with actual API endpoint
     this.timeout = 5000;
@@ -100,9 +100,3 @@ class APIHandler {
     }
   }
 }
-
-// Create global API instance
-const api = new APIHandler();
-// Export for use in other modules
-export { APIHandler, api };
-export default APIHandler;

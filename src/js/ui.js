@@ -3,7 +3,20 @@
  * Handles all user interface interactions and DOM manipulation
  */
 
-class UIManager {
+import AuthManager from "./auth";
+import ClassManager from "./classes.js";
+import EnrollmentManager from "./enrollment.js";
+import PaymentManager from "./payment.js";
+import DashboardManager from "./dashboard.js";
+
+const authManager = new AuthManager();
+const classManager = new ClassManager();
+const enrollmentManager = new EnrollmentManager();
+const paymentManager = new PaymentManager();
+const dashboardManager = new DashboardManager();
+
+
+export default class UIManager {
   constructor() {
     this.initializeEventListeners();
     this.updateUIState();
@@ -31,6 +44,10 @@ class UIManager {
     document
       .getElementById("loginForm")
       .addEventListener("submit", (e) => this.handleLogin(e));
+    const googleLoginBtn = document.getElementById("googleLoginBtn");
+    if (googleLoginBtn) {
+      googleLoginBtn.addEventListener("click", () => this.handleGoogleLogin());
+    }
     document
       .getElementById("closeLoginModal")
       .addEventListener("click", () => this.closeModal("loginModal"));
@@ -39,6 +56,12 @@ class UIManager {
     document
       .getElementById("registerForm")
       .addEventListener("submit", (e) => this.handleRegister(e));
+    const googleRegisterBtn = document.getElementById("googleRegisterBtn");
+    if (googleRegisterBtn) {
+      googleRegisterBtn.addEventListener("click", () =>
+        this.handleGoogleLogin(),
+      );
+    }
     document
       .getElementById("closeRegisterModal")
       .addEventListener("click", () => this.closeModal("registerModal"));
@@ -186,15 +209,14 @@ class UIManager {
                 <p><strong>Available Spots:</strong> ${availableSpots} / ${yogaClass.maxStudents}</p>
                 <p><strong>Description:</strong></p>
                 <p>${yogaClass.description}</p>
-                ${
-                  user && user.role === "student"
-                    ? `
+                ${user && user.role === "student"
+          ? `
                     <button class="btn btn-primary" id="enrollBtn" ${isEnrolled ? "disabled" : ""}>
                         ${isEnrolled ? "Already Enrolled" : "Enroll Now"}
                     </button>
                 `
-                    : ""
-                }
+          : ""
+        }
             `;
 
       if (user && user.role === "student" && !isEnrolled) {
@@ -248,11 +270,8 @@ class UIManager {
   async handleLogin(e) {
     e.preventDefault();
 
-    const email = document.getElementById("loginEmail").value;
-    const password = document.getElementById("loginPassword").value;
-
     try {
-      await authManager.login(email, password);
+      await this.handleGoogleLogin();
       this.showNotification("Login successful!", "success");
       this.closeModal("loginModal");
       this.updateUIState();
@@ -269,13 +288,8 @@ class UIManager {
   async handleRegister(e) {
     e.preventDefault();
 
-    const email = document.getElementById("registerEmail").value;
-    const password = document.getElementById("registerPassword").value;
-    const name = document.getElementById("registerName").value;
-    const role = document.getElementById("registerRole").value;
-
     try {
-      await authManager.register(email, password, name, role);
+      await this.handleGoogleLogin();
       this.showNotification("Registration successful!", "success");
       this.closeModal("registerModal");
       this.updateUIState();
@@ -289,9 +303,17 @@ class UIManager {
   /**
    * Handle logout
    */
-  handleLogout() {
-    authManager.logout();
+  async handleLogout() {
+    await authManager.logout();
     this.showNotification("Logged out successfully", "success");
+    this.updateUIState();
+  }
+
+  /**
+   * Handle Google login
+   */
+  async handleGoogleLogin() {
+    await authManager.loginWithGoogle();
     this.updateUIState();
   }
 
@@ -429,10 +451,3 @@ class UIManager {
     menu.classList.toggle("active");
   }
 }
-
-// Create global UI manager instance
-const uiManager = new UIManager();
-
-// Export for use in other modules
-export { UIManager, uiManager };
-export default UIManager;

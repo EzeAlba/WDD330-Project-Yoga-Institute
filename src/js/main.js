@@ -4,6 +4,22 @@
  *
  * This file initializes the application and coordinates between modules
  */
+import APIHandler from "./api.js";
+import AuthManager from "./auth.js";
+import ClassManager from "./classes.js";
+import EnrollmentManager from "./enrollment.js";
+import PaymentManager from "./payment.js";
+import DashboardManager from "./dashboard.js";
+import UIManager from "./ui.js";
+
+// Initialize Firebase and authentication
+const api = new APIHandler();
+const authManager = new AuthManager();
+const classManager = new ClassManager(api);
+const enrollmentManager = new EnrollmentManager(api, authManager);
+const paymentManager = new PaymentManager(api, authManager);
+const dashboardManager = new DashboardManager(api, authManager);
+const uiManager = new UIManager();
 
 class MoodApp {
   constructor() {
@@ -18,16 +34,12 @@ class MoodApp {
   async init() {
     try {
       console.log(`Initializing ${this.name} v${this.version}`);
-
       // Initialize modules in order
       this.initializeModules();
-
       // Load initial data
       await this.loadInitialData();
-
       // Check if user is already logged in
       this.checkAuthStatus();
-
       this.initialized = true;
       console.log("Application initialized successfully");
     } catch (error) {
@@ -40,13 +52,13 @@ class MoodApp {
    */
   initializeModules() {
     // Modules are already instantiated globally:
-    // - api (APIHandler)
-    // - authManager (AuthManager)
-    // - classManager (ClassManager)
-    // - enrollmentManager (EnrollmentManager)
-    // - paymentManager (PaymentManager)
-    // - dashboardManager (DashboardManager)
-    // - uiManager (UIManager) - initialized on DOM ready
+    //api (APIHandler)
+    //authManager (AuthManager)
+    //classManager (ClassManager)
+    //enrollmentManager (EnrollmentManager)
+    //paymentManager (PaymentManager)
+    //dashboardManager (DashboardManager)
+    //uiManager (UIManager)
 
     console.log("Modules initialized");
   }
@@ -210,13 +222,12 @@ async function loadEnrollmentsTab() {
                 <p><strong>Schedule:</strong> ${yogaClass.schedule.day} at ${yogaClass.schedule.time}</p>
                 <p><strong>Status:</strong> <span style="color: ${enrollment.status === "active" ? "#4CAF50" : "#f44336"}">${enrollment.status}</span></p>
                 <p><strong>Payment:</strong> ${enrollment.paymentStatus}</p>
-                ${
-                  enrollment.paymentStatus === "pending"
-                    ? `
+                ${enrollment.paymentStatus === "pending"
+          ? `
                     <button class="btn btn-primary" style="margin-top: 10px;">Pay Now</button>
                 `
-                    : ""
-                }
+          : ""
+        }
             `;
       container.appendChild(item);
     }

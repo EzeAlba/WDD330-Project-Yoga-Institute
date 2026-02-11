@@ -2,8 +2,14 @@
  * Enrollment Module
  * Handles student enrollment in classes and enrollment tracking
  */
+import AuthManager from "./auth.js";
+import ClassManager from "./classes.js";
 
-class EnrollmentManager {
+const authManager = new AuthManager();
+const classManager = new ClassManager();
+
+
+export default class EnrollmentManager {
   constructor() {
     this.enrollments = this.loadEnrollments();
   }
@@ -217,9 +223,4 @@ class EnrollmentManager {
   }
 }
 
-// Create global enrollment manager instance
-const enrollmentManager = new EnrollmentManager();
 
-// Export for use in other modules
-export { EnrollmentManager, enrollmentManager };
-export default EnrollmentManager;
