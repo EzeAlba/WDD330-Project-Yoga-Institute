@@ -8,7 +8,6 @@ import ClassManager from "./classes.js";
 const authManager = new AuthManager();
 const classManager = new ClassManager();
 
-
 export default class EnrollmentManager {
   constructor() {
     this.enrollments = this.loadEnrollments();
@@ -223,4 +222,8 @@ export default class EnrollmentManager {
   }
 }
 
+// Create global enrollment manager instance
+const enrollmentManager = new EnrollmentManager();
 
+// Export for use in other modules
+export { EnrollmentManager, enrollmentManager };

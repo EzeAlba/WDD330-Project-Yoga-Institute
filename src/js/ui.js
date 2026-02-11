@@ -15,7 +15,6 @@ const enrollmentManager = new EnrollmentManager();
 const paymentManager = new PaymentManager();
 const dashboardManager = new DashboardManager();
 
-
 export default class UIManager {
   constructor() {
     this.initializeEventListeners();
@@ -209,14 +208,15 @@ export default class UIManager {
                 <p><strong>Available Spots:</strong> ${availableSpots} / ${yogaClass.maxStudents}</p>
                 <p><strong>Description:</strong></p>
                 <p>${yogaClass.description}</p>
-                ${user && user.role === "student"
-          ? `
+                ${
+                  user && user.role === "student"
+                    ? `
                     <button class="btn btn-primary" id="enrollBtn" ${isEnrolled ? "disabled" : ""}>
                         ${isEnrolled ? "Already Enrolled" : "Enroll Now"}
                     </button>
                 `
-          : ""
-        }
+                    : ""
+                }
             `;
 
       if (user && user.role === "student" && !isEnrolled) {
@@ -375,7 +375,12 @@ export default class UIManager {
     }
 
     // Add active class to clicked button
-    event.target.classList.add("active");
+    const activeBtn = document.querySelector(
+      `.profile-nav-btn[data-tab="${tabName}"]`,
+    );
+    if (activeBtn) {
+      activeBtn.classList.add("active");
+    }
   }
 
   /**
@@ -451,3 +456,9 @@ export default class UIManager {
     menu.classList.toggle("active");
   }
 }
+
+// Create global UI manager instance
+const uiManager = new UIManager();
+
+// Export for use in other modules
+export { UIManager, uiManager };

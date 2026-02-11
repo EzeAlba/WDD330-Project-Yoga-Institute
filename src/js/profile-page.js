@@ -63,5 +63,10 @@ function switchTab(tabName) {
   }
 
   // Add active class to clicked button
-  event.target.classList.add("active");
+  const activeBtn = document.querySelector(
+    `.profile-nav-btn[data-tab="${tabName}"]`,
+  );
+  if (activeBtn) {
+    activeBtn.classList.add("active");
+  }
 }

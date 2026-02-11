@@ -14,6 +14,8 @@ export default [
         console: "readonly",
         document: "readonly",
         window: "readonly",
+        alert: "readonly",
+        event: "readonly",
         fetch: "readonly",
         localStorage: "readonly",
         setTimeout: "readonly",
@@ -23,6 +25,7 @@ export default [
         JSON: "readonly",
         Set: "readonly",
         URLSearchParams: "readonly",
+        __dirname: "readonly",
         // Application global managers
         api: "readonly",
         authManager: "readonly",

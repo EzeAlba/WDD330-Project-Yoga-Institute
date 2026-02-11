@@ -23,7 +23,7 @@ export async function loginWithGoogle() {
       name: user.displayName,
       email: user.email,
       role: "student", // default role
-      createdAt: new Date()
+      createdAt: new Date(),
     });
   }
 
@@ -159,13 +159,13 @@ export default class AuthManager {
         name: firebaseUser.displayName || firebaseUser.email?.split("@")[0],
         email: firebaseUser.email,
         role: "student",
-        createdAt: new Date()
+        createdAt: new Date(),
       };
       await setDoc(userRef, newUser);
       return {
         id: firebaseUser.uid,
         ...newUser,
-        loginTime: new Date().toISOString()
+        loginTime: new Date().toISOString(),
       };
     }
 
@@ -173,10 +173,13 @@ export default class AuthManager {
     return {
       id: firebaseUser.uid,
       uid: firebaseUser.uid,
-      name: data.name || firebaseUser.displayName || firebaseUser.email?.split("@")[0],
+      name:
+        data.name ||
+        firebaseUser.displayName ||
+        firebaseUser.email?.split("@")[0],
       email: data.email || firebaseUser.email,
       role: data.role || "student",
-      loginTime: new Date().toISOString()
+      loginTime: new Date().toISOString(),
     };
   }
 
@@ -201,3 +204,9 @@ export default class AuthManager {
     });
   }
 }
+
+// Create global auth manager instance
+const authManager = new AuthManager();
+
+// Export for use in other modules
+export { AuthManager, authManager };

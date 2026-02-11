@@ -12,7 +12,7 @@ const firebaseConfig = {
   projectId: "yoga-institute-wdd330",
   storageBucket: "yoga-institute-wdd330.firebasestorage.app",
   messagingSenderId: "393026083423",
-  appId: "1:393026083423:web:feefc82d3a67f391d819ea"
+  appId: "1:393026083423:web:feefc82d3a67f391d819ea",
 };
 
 // Initialize Firebase

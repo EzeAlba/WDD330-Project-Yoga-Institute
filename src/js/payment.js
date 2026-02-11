@@ -10,7 +10,6 @@ const authManager = new AuthManager();
 const classManager = new ClassManager();
 const enrollmentManager = new EnrollmentManager();
 
-
 export default class PaymentManager {
   constructor() {
     this.payments = this.loadPayments();
@@ -199,3 +198,8 @@ export default class PaymentManager {
   }
 }
 
+// Create global payment manager instance
+const paymentManager = new PaymentManager();
+
+// Export for use in other modules
+export { PaymentManager, paymentManager };

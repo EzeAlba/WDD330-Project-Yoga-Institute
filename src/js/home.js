@@ -4,7 +4,7 @@
  */
 
 import { loadHeaderFooter } from "./utils.mjs";
-import { AuthManager, authManager } from "./auth.js";
+import { authManager } from "./auth.js";
 import { UIManager, uiManager } from "./ui.js";
 
 // Load header and footer
