@@ -12,14 +12,17 @@ import PaymentManager from "./payment.js";
 import DashboardManager from "./dashboard.js";
 import UIManager from "./ui.js";
 
+// Make managers globally accessible for debugging
+window.debugManagers = {};
+
 // Initialize Firebase and authentication
 const api = new APIHandler();
 const authManager = new AuthManager();
 const classManager = new ClassManager(api);
-const enrollmentManager = new EnrollmentManager(api, authManager);
-const paymentManager = new PaymentManager(api, authManager);
+const enrollmentManager = new EnrollmentManager(api, authManager, classManager);
+const paymentManager = new PaymentManager(api, authManager, classManager, enrollmentManager);
 const dashboardManager = new DashboardManager(api, authManager);
-const uiManager = new UIManager();
+const uiManager = new UIManager(authManager, classManager, enrollmentManager, paymentManager, dashboardManager);
 
 class MoodApp {
   constructor() {
@@ -222,13 +225,12 @@ async function loadEnrollmentsTab() {
                 <p><strong>Schedule:</strong> ${yogaClass.schedule.day} at ${yogaClass.schedule.time}</p>
                 <p><strong>Status:</strong> <span style="color: ${enrollment.status === "active" ? "#4CAF50" : "#f44336"}">${enrollment.status}</span></p>
                 <p><strong>Payment:</strong> ${enrollment.paymentStatus}</p>
-                ${
-                  enrollment.paymentStatus === "pending"
-                    ? `
+                ${enrollment.paymentStatus === "pending"
+          ? `
                     <button class="btn btn-primary" style="margin-top: 10px;">Pay Now</button>
                 `
-                    : ""
-                }
+          : ""
+        }
             `;
       container.appendChild(item);
     }

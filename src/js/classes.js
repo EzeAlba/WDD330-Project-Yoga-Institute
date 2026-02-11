@@ -258,8 +258,4 @@ class ClassManager {
   }
 }
 
-// Create global class manager instance
-const classManager = new ClassManager();
-// Export for use in other modules
-export { ClassManager, classManager };
 export default ClassManager;

@@ -204,9 +204,3 @@ export default class AuthManager {
     });
   }
 }
-
-// Create global auth manager instance
-const authManager = new AuthManager();
-
-// Export for use in other modules
-export { AuthManager, authManager };

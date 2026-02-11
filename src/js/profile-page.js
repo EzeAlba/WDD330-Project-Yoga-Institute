@@ -4,10 +4,18 @@
  */
 
 import { loadHeaderFooter } from "./utils.mjs";
-import { AuthManager, authManager } from "./auth.js";
-import { UIManager, uiManager } from "./ui.js";
-import { EnrollmentManager, enrollmentManager } from "./enrollment.js";
-import { PaymentManager, paymentManager } from "./payment.js";
+import AuthManager from "./auth.js";
+import UIManager from "./ui.js";
+import EnrollmentManager from "./enrollment.js";
+import PaymentManager from "./payment.js";
+import APIHandler from "./api.js";
+
+// Create manager instances
+const api = new APIHandler();
+const authManager = new AuthManager();
+const enrollmentManager = new EnrollmentManager(api, authManager);
+const paymentManager = new PaymentManager(api, authManager);
+const uiManager = new UIManager(authManager, null, enrollmentManager, paymentManager, null);
 
 // Load header and footer
 document.addEventListener("DOMContentLoaded", async () => {
