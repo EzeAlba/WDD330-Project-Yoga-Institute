@@ -10,7 +10,13 @@ import PaymentManager from "./payment.js";
 import DashboardManager from "./dashboard.js";
 
 export default class UIManager {
-  constructor(authManager, classManager, enrollmentManager, paymentManager, dashboardManager) {
+  constructor(
+    authManager,
+    classManager,
+    enrollmentManager,
+    paymentManager,
+    dashboardManager,
+  ) {
     this.authManager = authManager;
     this.classManager = classManager;
     this.enrollmentManager = enrollmentManager;
@@ -192,7 +198,8 @@ export default class UIManager {
     try {
       const yogaClass = await this.classManager.getClassById(classId);
       const user = this.authManager.getCurrentUser();
-      const isEnrolled = user && this.enrollmentManager.isEnrolled(user.id, classId);
+      const isEnrolled =
+        user && this.enrollmentManager.isEnrolled(user.id, classId);
 
       const detailsDiv = document.getElementById("classDetails");
       const availableSpots = this.classManager.getAvailableSpots(classId);
@@ -207,14 +214,15 @@ export default class UIManager {
                 <p><strong>Available Spots:</strong> ${availableSpots} / ${yogaClass.maxStudents}</p>
                 <p><strong>Description:</strong></p>
                 <p>${yogaClass.description}</p>
-                ${user && user.role === "student"
-          ? `
+                ${
+                  user && user.role === "student"
+                    ? `
                     <button class="btn btn-primary" id="enrollBtn" ${isEnrolled ? "disabled" : ""}>
                         ${isEnrolled ? "Already Enrolled" : "Enroll Now"}
                     </button>
                 `
-          : ""
-        }
+                    : ""
+                }
             `;
 
       if (user && user.role === "student" && !isEnrolled) {

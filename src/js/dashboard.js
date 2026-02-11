@@ -209,7 +209,9 @@ class DashboardManager {
 
     return Object.entries(revenue)
       .map(([classId, amount]) => {
-        const yogaClass = this.classManager.classes.find((c) => c.id === classId);
+        const yogaClass = this.classManager.classes.find(
+          (c) => c.id === classId,
+        );
         return {
           classId: classId,
           className: yogaClass?.title || "Unknown",

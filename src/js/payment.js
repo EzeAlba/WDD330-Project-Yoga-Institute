@@ -26,7 +26,9 @@ export default class PaymentManager {
         throw new Error("Enrollment not found");
       }
 
-      const yogaClass = await this.classManager.getClassById(enrollment.classId);
+      const yogaClass = await this.classManager.getClassById(
+        enrollment.classId,
+      );
       if (!yogaClass) {
         throw new Error("Class not found");
       }

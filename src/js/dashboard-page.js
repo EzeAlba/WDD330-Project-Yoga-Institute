@@ -13,7 +13,13 @@ import APIHandler from "./api.js";
 const api = new APIHandler();
 const authManager = new AuthManager();
 const dashboardManager = new DashboardManager(api, authManager);
-const uiManager = new UIManager(authManager, null, null, null, dashboardManager);
+const uiManager = new UIManager(
+  authManager,
+  null,
+  null,
+  null,
+  dashboardManager,
+);
 
 // Load header and footer
 document.addEventListener("DOMContentLoaded", async () => {

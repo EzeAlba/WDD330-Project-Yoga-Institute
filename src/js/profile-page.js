@@ -15,7 +15,13 @@ const api = new APIHandler();
 const authManager = new AuthManager();
 const enrollmentManager = new EnrollmentManager(api, authManager);
 const paymentManager = new PaymentManager(api, authManager);
-const uiManager = new UIManager(authManager, null, enrollmentManager, paymentManager, null);
+const uiManager = new UIManager(
+  authManager,
+  null,
+  enrollmentManager,
+  paymentManager,
+  null,
+);
 
 // Load header and footer
 document.addEventListener("DOMContentLoaded", async () => {
