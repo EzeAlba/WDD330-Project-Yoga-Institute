@@ -6,12 +6,11 @@ import AuthManager from "./auth.js";
 import ClassManager from "./classes.js";
 import EnrollmentManager from "./enrollment.js";
 
-const authManager = new AuthManager();
-const classManager = new ClassManager();
-const enrollmentManager = new EnrollmentManager();
-
 export default class PaymentManager {
-  constructor() {
+  constructor(api, authManager, classManager, enrollmentManager) {
+    this.authManager = authManager;
+    this.classManager = classManager;
+    this.enrollmentManager = enrollmentManager;
     this.payments = this.loadPayments();
   }
 
@@ -20,14 +19,14 @@ export default class PaymentManager {
    */
   async processPayment(enrollmentId, paymentMethod = "bank_transfer") {
     try {
-      const enrollment = enrollmentManager.enrollments.find(
+      const enrollment = this.enrollmentManager.enrollments.find(
         (e) => e.id === enrollmentId,
       );
       if (!enrollment) {
         throw new Error("Enrollment not found");
       }
 
-      const yogaClass = await classManager.getClassById(enrollment.classId);
+      const yogaClass = await this.classManager.getClassById(enrollment.classId);
       if (!yogaClass) {
         throw new Error("Class not found");
       }
@@ -51,7 +50,7 @@ export default class PaymentManager {
       };
 
       this.payments.push(payment);
-      await enrollmentManager.updatePaymentStatus(enrollmentId, "pending");
+      await this.enrollmentManager.updatePaymentStatus(enrollmentId, "pending");
       this.savePayments();
 
       return payment;
@@ -66,7 +65,7 @@ export default class PaymentManager {
    */
   async confirmPayment(paymentId) {
     try {
-      const user = authManager.getCurrentUser();
+      const user = this.authManager.getCurrentUser();
       if (!user || user.role !== "admin") {
         throw new Error("Only administrators can confirm payments");
       }
@@ -80,7 +79,7 @@ export default class PaymentManager {
       payment.confirmedAt = new Date().toISOString();
       payment.confirmedBy = user.id;
 
-      await enrollmentManager.updatePaymentStatus(
+      await this.enrollmentManager.updatePaymentStatus(
         payment.enrollmentId,
         "completed",
       );
@@ -97,7 +96,7 @@ export default class PaymentManager {
    * Get payment history for current user
    */
   getMyPaymentHistory() {
-    const user = authManager.getCurrentUser();
+    const user = this.authManager.getCurrentUser();
     if (!user) {
       return [];
     }
@@ -197,9 +196,3 @@ export default class PaymentManager {
     localStorage.setItem("moodPayments", JSON.stringify(this.payments));
   }
 }
-
-// Create global payment manager instance
-const paymentManager = new PaymentManager();
-
-// Export for use in other modules
-export { PaymentManager, paymentManager };

@@ -4,7 +4,8 @@
  */
 
 class DashboardManager {
-  constructor() {
+  constructor(api, authManager) {
+    this.authManager = authManager;
     this.dashboards = {
       student: this.getStudentDashboard.bind(this),
       instructor: this.getInstructorDashboard.bind(this),
@@ -16,7 +17,7 @@ class DashboardManager {
    * Get dashboard based on user role
    */
   getDashboard() {
-    const user = authManager.getCurrentUser();
+    const user = this.authManager.getCurrentUser();
     if (!user || !this.dashboards[user.role]) {
       return null;
     }
@@ -28,7 +29,7 @@ class DashboardManager {
    * Student Dashboard
    */
   getStudentDashboard() {
-    const user = authManager.getCurrentUser();
+    const user = this.authManager.getCurrentUser();
     if (!user) return null;
 
     const myEnrollments = enrollmentManager.getMyEnrollments();
@@ -57,10 +58,10 @@ class DashboardManager {
    * Instructor Dashboard
    */
   getInstructorDashboard() {
-    const user = authManager.getCurrentUser();
+    const user = this.authManager.getCurrentUser();
     if (!user || user.role !== "instructor") return null;
 
-    const myClasses = classManager.getClassesByInstructor(user.id);
+    const myClasses = this.classManager.getClassesByInstructor(user.id);
     const totalStudents = myClasses.reduce(
       (sum, c) => sum + c.enrolledStudents.length,
       0,
@@ -87,18 +88,18 @@ class DashboardManager {
    * Admin Dashboard
    */
   getAdminDashboard() {
-    const user = authManager.getCurrentUser();
+    const user = this.authManager.getCurrentUser();
     if (!user || user.role !== "admin") return null;
 
-    const allClasses = classManager.classes;
-    const totalEnrollments = enrollmentManager.enrollments.length;
-    const paymentStats = paymentManager.getPaymentStats();
+    const allClasses = this.classManager.classes;
+    const totalEnrollments = this.enrollmentManager.enrollments.length;
+    const paymentStats = this.paymentManager.getPaymentStats();
 
     const stats = {
       totalClasses: allClasses.length,
       totalEnrollments: totalEnrollments,
       totalStudents: new Set(
-        enrollmentManager.enrollments.map((e) => e.studentId),
+        this.enrollmentManager.enrollments.map((e) => e.studentId),
       ).size,
       totalInstructors: new Set(allClasses.map((c) => c.instructorId)).size,
       totalRevenue: paymentStats.totalRevenue,
@@ -107,7 +108,7 @@ class DashboardManager {
       classOccupancy: this.calculateAverageOccupancy(allClasses),
       topClasses: this.getTopClasses(),
       revenueByClass: this.getRevenueByClass(),
-      pendingPaymentsList: paymentManager.getPendingPayments(),
+      pendingPaymentsList: this.paymentManager.getPendingPayments(),
     };
 
     return {
@@ -115,7 +116,7 @@ class DashboardManager {
       user: user,
       stats: stats,
       classes: allClasses,
-      enrollments: enrollmentManager.enrollments,
+      enrollments: this.enrollmentManager.enrollments,
     };
   }
 
@@ -123,7 +124,7 @@ class DashboardManager {
    * Calculate student attendance rate
    */
   calculateStudentAttendanceRate(studentId) {
-    const enrollments = enrollmentManager.getStudentEnrollments(studentId);
+    const enrollments = this.enrollmentManager.getStudentEnrollments(studentId);
     if (enrollments.length === 0) return 0;
 
     const attended = enrollments.filter((e) => e.attended).length;
@@ -144,7 +145,7 @@ class DashboardManager {
     const stats = {};
 
     classes.forEach((c) => {
-      const enrollments = enrollmentManager.getClassEnrollments(c.id);
+      const enrollments = this.enrollmentManager.getClassEnrollments(c.id);
       const attended = enrollments.filter((e) => e.attended).length;
       stats[c.id] = {
         classTitle: c.title,
@@ -178,7 +179,7 @@ class DashboardManager {
    * Get top performing classes
    */
   getTopClasses() {
-    return classManager.classes
+    return this.classManager.classes
       .sort((a, b) => b.enrolledStudents.length - a.enrolledStudents.length)
       .slice(0, 5)
       .map((c) => ({
@@ -197,7 +198,7 @@ class DashboardManager {
   getRevenueByClass() {
     const revenue = {};
 
-    paymentManager.payments
+    this.paymentManager.payments
       .filter((p) => p.status === "confirmed")
       .forEach((p) => {
         if (!revenue[p.classId]) {
@@ -208,7 +209,7 @@ class DashboardManager {
 
     return Object.entries(revenue)
       .map(([classId, amount]) => {
-        const yogaClass = classManager.classes.find((c) => c.id === classId);
+        const yogaClass = this.classManager.classes.find((c) => c.id === classId);
         return {
           classId: classId,
           className: yogaClass?.title || "Unknown",
@@ -219,9 +220,5 @@ class DashboardManager {
   }
 }
 
-// Create global dashboard manager instance
-const dashboardManager = new DashboardManager();
-
 // Export for use in other modules
-export { DashboardManager, dashboardManager };
 export default DashboardManager;

@@ -9,14 +9,13 @@ import EnrollmentManager from "./enrollment.js";
 import PaymentManager from "./payment.js";
 import DashboardManager from "./dashboard.js";
 
-const authManager = new AuthManager();
-const classManager = new ClassManager();
-const enrollmentManager = new EnrollmentManager();
-const paymentManager = new PaymentManager();
-const dashboardManager = new DashboardManager();
-
 export default class UIManager {
-  constructor() {
+  constructor(authManager, classManager, enrollmentManager, paymentManager, dashboardManager) {
+    this.authManager = authManager;
+    this.classManager = classManager;
+    this.enrollmentManager = enrollmentManager;
+    this.paymentManager = paymentManager;
+    this.dashboardManager = dashboardManager;
     this.initializeEventListeners();
     this.updateUIState();
   }
@@ -94,8 +93,8 @@ export default class UIManager {
    * Update UI based on authentication state
    */
   updateUIState() {
-    const isAuthenticated = authManager.checkAuth();
-    const user = authManager.getCurrentUser();
+    const isAuthenticated = this.authManager.checkAuth();
+    const user = this.authManager.getCurrentUser();
 
     if (isAuthenticated && user) {
       // Hide auth buttons
@@ -128,7 +127,7 @@ export default class UIManager {
    */
   async loadClasses() {
     try {
-      const classes = await classManager.getAllClasses();
+      const classes = await this.classManager.getAllClasses();
       this.displayClasses(classes);
     } catch (error) {
       console.error("Failed to load classes:", error);
@@ -191,12 +190,12 @@ export default class UIManager {
    */
   async showClassDetails(classId) {
     try {
-      const yogaClass = await classManager.getClassById(classId);
-      const user = authManager.getCurrentUser();
-      const isEnrolled = user && enrollmentManager.isEnrolled(user.id, classId);
+      const yogaClass = await this.classManager.getClassById(classId);
+      const user = this.authManager.getCurrentUser();
+      const isEnrolled = user && this.enrollmentManager.isEnrolled(user.id, classId);
 
       const detailsDiv = document.getElementById("classDetails");
-      const availableSpots = classManager.getAvailableSpots(classId);
+      const availableSpots = this.classManager.getAvailableSpots(classId);
 
       detailsDiv.innerHTML = `
                 <h2>${yogaClass.title}</h2>
@@ -208,15 +207,14 @@ export default class UIManager {
                 <p><strong>Available Spots:</strong> ${availableSpots} / ${yogaClass.maxStudents}</p>
                 <p><strong>Description:</strong></p>
                 <p>${yogaClass.description}</p>
-                ${
-                  user && user.role === "student"
-                    ? `
+                ${user && user.role === "student"
+          ? `
                     <button class="btn btn-primary" id="enrollBtn" ${isEnrolled ? "disabled" : ""}>
                         ${isEnrolled ? "Already Enrolled" : "Enroll Now"}
                     </button>
                 `
-                    : ""
-                }
+          : ""
+        }
             `;
 
       if (user && user.role === "student" && !isEnrolled) {
@@ -237,7 +235,7 @@ export default class UIManager {
    */
   async enrollInClass(classId) {
     try {
-      const enrollment = await enrollmentManager.enrollStudent(classId);
+      const enrollment = await this.enrollmentManager.enrollStudent(classId);
       this.showNotification("Successfully enrolled in class!", "success");
       this.closeModal("classModal");
       this.loadClasses();
@@ -255,7 +253,7 @@ export default class UIManager {
     const difficulty = document.getElementById("difficultyFilter").value;
     const day = document.getElementById("dayFilter").value;
 
-    const filtered = classManager.searchClasses({
+    const filtered = this.classManager.searchClasses({
       search: search,
       difficulty: difficulty || undefined,
       day: day || undefined,
@@ -304,7 +302,7 @@ export default class UIManager {
    * Handle logout
    */
   async handleLogout() {
-    await authManager.logout();
+    await this.authManager.logout();
     this.showNotification("Logged out successfully", "success");
     this.updateUIState();
   }
@@ -313,7 +311,7 @@ export default class UIManager {
    * Handle Google login
    */
   async handleGoogleLogin() {
-    await authManager.loginWithGoogle();
+    await this.authManager.loginWithGoogle();
     this.updateUIState();
   }
 
@@ -321,7 +319,7 @@ export default class UIManager {
    * Load admin dashboard
    */
   loadAdminDashboard() {
-    const dashboard = dashboardManager.getDashboard();
+    const dashboard = this.dashboardManager.getDashboard();
     if (!dashboard) return;
 
     const container = document.getElementById("dashboardGrid");
@@ -456,9 +454,3 @@ export default class UIManager {
     menu.classList.toggle("active");
   }
 }
-
-// Create global UI manager instance
-const uiManager = new UIManager();
-
-// Export for use in other modules
-export { UIManager, uiManager };

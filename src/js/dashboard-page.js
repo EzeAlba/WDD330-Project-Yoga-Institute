@@ -4,9 +4,16 @@
  */
 
 import { loadHeaderFooter } from "./utils.mjs";
-import { AuthManager, authManager } from "./auth.js";
-import { UIManager, uiManager } from "./ui.js";
-import { DashboardManager, dashboardManager } from "./dashboard.js";
+import AuthManager from "./auth.js";
+import UIManager from "./ui.js";
+import DashboardManager from "./dashboard.js";
+import APIHandler from "./api.js";
+
+// Create manager instances
+const api = new APIHandler();
+const authManager = new AuthManager();
+const dashboardManager = new DashboardManager(api, authManager);
+const uiManager = new UIManager(authManager, null, null, null, dashboardManager);
 
 // Load header and footer
 document.addEventListener("DOMContentLoaded", async () => {

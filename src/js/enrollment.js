@@ -5,11 +5,10 @@
 import AuthManager from "./auth.js";
 import ClassManager from "./classes.js";
 
-const authManager = new AuthManager();
-const classManager = new ClassManager();
-
 export default class EnrollmentManager {
-  constructor() {
+  constructor(api, authManager, classManager) {
+    this.authManager = authManager;
+    this.classManager = classManager;
     this.enrollments = this.loadEnrollments();
   }
 
@@ -18,7 +17,7 @@ export default class EnrollmentManager {
    */
   async enrollStudent(classId) {
     try {
-      const user = authManager.getCurrentUser();
+      const user = this.authManager.getCurrentUser();
       if (!user) {
         throw new Error("User must be logged in to enroll");
       }
@@ -27,12 +26,12 @@ export default class EnrollmentManager {
         throw new Error("Only students can enroll in classes");
       }
 
-      const yogaClass = await classManager.getClassById(classId);
+      const yogaClass = await this.classManager.getClassById(classId);
       if (!yogaClass) {
         throw new Error("Class not found");
       }
 
-      if (classManager.isClassFull(classId)) {
+      if (this.classManager.isClassFull(classId)) {
         throw new Error("Class is full");
       }
 
@@ -55,7 +54,7 @@ export default class EnrollmentManager {
 
       // Add student to class
       yogaClass.enrolledStudents.push(user.id);
-      classManager.saveClasses();
+      this.classManager.saveClasses();
 
       this.saveEnrollments();
       return enrollment;
@@ -70,7 +69,7 @@ export default class EnrollmentManager {
    */
   async dropClass(classId) {
     try {
-      const user = authManager.getCurrentUser();
+      const user = this.authManager.getCurrentUser();
       if (!user) {
         throw new Error("User must be logged in");
       }
@@ -86,11 +85,11 @@ export default class EnrollmentManager {
       this.enrollments.splice(enrollmentIndex, 1);
 
       // Remove student from class
-      const yogaClass = await classManager.getClassById(classId);
+      const yogaClass = await this.classManager.getClassById(classId);
       yogaClass.enrolledStudents = yogaClass.enrolledStudents.filter(
         (id) => id !== user.id,
       );
-      classManager.saveClasses();
+      this.classManager.saveClasses();
 
       this.saveEnrollments();
     } catch (error) {
@@ -103,7 +102,7 @@ export default class EnrollmentManager {
    * Get all enrollments for current student
    */
   getMyEnrollments() {
-    const user = authManager.getCurrentUser();
+    const user = this.authManager.getCurrentUser();
     if (!user) {
       return [];
     }
@@ -221,9 +220,3 @@ export default class EnrollmentManager {
     localStorage.setItem("moodEnrollments", JSON.stringify(this.enrollments));
   }
 }
-
-// Create global enrollment manager instance
-const enrollmentManager = new EnrollmentManager();
-
-// Export for use in other modules
-export { EnrollmentManager, enrollmentManager };
