@@ -4,7 +4,7 @@
  */
 
 //Adding Google Firebase for authentication (optional, can be replaced with custom backend)
-import { auth, provider, db } from "./firebase";
+import { auth, provider, db } from "./firebase.mjs";
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
@@ -14,7 +14,7 @@ import {
   updateProfile as updateAuthProfile,
 } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
-import APIHandler from "./api";
+import APIHandler from "./api.mjs";
 
 const api = new APIHandler();
 

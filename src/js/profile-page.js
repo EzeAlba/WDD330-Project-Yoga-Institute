@@ -4,11 +4,11 @@
  */
 
 import { loadHeaderFooter } from "./utils.mjs";
-import AuthManager from "./auth.js";
-import UIManager from "./ui.js";
-import EnrollmentManager from "./enrollment.js";
-import PaymentManager from "./payment.js";
-import APIHandler from "./api.js";
+import AuthManager from "./auth.mjs";
+import UIManager from "./ui.mjs";
+import EnrollmentManager from "./enrollment.mjs";
+import PaymentManager from "./payment.mjs";
+import APIHandler from "./api.mjs";
 
 // Create manager instances
 const api = new APIHandler();

@@ -4,7 +4,7 @@
  */
 
 import { loadHeaderFooter } from "./utils.mjs";
-import AuthManager from "./auth.js";
+import AuthManager from "./auth.mjs";
 
 // Create manager instance
 const authManager = new AuthManager();

@@ -2,9 +2,9 @@
  * Payment Module
  * Handles class payment processing and payment tracking
  */
-import AuthManager from "./auth.js";
-import ClassManager from "./classes.js";
-import EnrollmentManager from "./enrollment.js";
+import AuthManager from "./auth.mjs";
+import ClassManager from "./classes.mjs";
+import EnrollmentManager from "./enrollment.mjs";
 
 export default class PaymentManager {
   constructor(api, authManager, classManager, enrollmentManager) {

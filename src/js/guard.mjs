@@ -1,6 +1,6 @@
 //module to protect pages by role
 
-import { auth, db } from "./firebase";
+import { auth, db } from "./firebase.mjs";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 

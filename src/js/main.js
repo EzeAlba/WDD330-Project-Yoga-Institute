@@ -4,13 +4,13 @@
  *
  * This file initializes the application and coordinates between modules
  */
-import APIHandler from "./api.js";
-import AuthManager from "./auth.js";
-import ClassManager from "./classes.js";
-import EnrollmentManager from "./enrollment.js";
-import PaymentManager from "./payment.js";
-import DashboardManager from "./dashboard.js";
-import UIManager from "./ui.js";
+import APIHandler from "./api.mjs";
+import AuthManager from "./auth.mjs";
+import ClassManager from "./classes.mjs";
+import EnrollmentManager from "./enrollment.mjs";
+import PaymentManager from "./payment.mjs";
+import DashboardManager from "./dashboard.mjs";
+import UIManager from "./ui.mjs";
 import { loadHeaderFooter } from "./utils.mjs";
 
 // Make managers globally accessible for debugging
@@ -36,7 +36,6 @@ class MoodApp {
    */
   async init() {
     try {
-      console.log(`Initializing ${this.name} v${this.version}`);
       // Initialize modules in order
       this.initializeModules();
       // Load initial data
@@ -44,9 +43,8 @@ class MoodApp {
       // Check if user is already logged in
       this.checkAuthStatus();
       this.initialized = true;
-      console.log("Application initialized successfully");
     } catch (error) {
-      console.error("Failed to initialize application:", error);
+      window.lastMoodError = error;
     }
   }
 
@@ -62,8 +60,6 @@ class MoodApp {
     //paymentManager (PaymentManager)
     //dashboardManager (DashboardManager)
     //uiManager (UIManager)
-
-    console.log("Modules initialized");
   }
 
   /**
@@ -72,16 +68,14 @@ class MoodApp {
   async loadInitialData() {
     try {
       // Load classes
-      const classes = await classManager.getAllClasses();
-      console.log(`Loaded ${classes.length} classes`);
+      await classManager.getAllClasses();
 
       // Load enrollments if user is logged in
       if (authManager.checkAuth()) {
-        const enrollments = enrollmentManager.getMyEnrollments();
-        console.log(`Loaded ${enrollments.length} enrollments`);
+        enrollmentManager.getMyEnrollments();
       }
     } catch (error) {
-      console.error("Failed to load initial data:", error);
+      window.lastMoodError = error;
     }
   }
 
@@ -90,10 +84,7 @@ class MoodApp {
    */
   checkAuthStatus() {
     if (authManager.checkAuth()) {
-      const user = authManager.getCurrentUser();
-      console.log(`User logged in: ${user.name} (${user.role})`);
-    } else {
-      console.log("No user logged in");
+      authManager.getCurrentUser();
     }
   }
 
@@ -176,7 +167,7 @@ function setupProfileLinkHandler() {
     const user = authManager.getCurrentUser();
     if (user) {
       // Load user profile data
-      loadUserProfile(user.id);
+      loadUserProfile();
       document.getElementById("profile").style.display = "block";
       document.getElementById("home").style.display = "none";
       document.getElementById("classes").style.display = "none";
@@ -188,7 +179,7 @@ function setupProfileLinkHandler() {
 /**
  * Load user profile data
  */
-async function loadUserProfile(userId) {
+async function loadUserProfile() {
   try {
     const user = authManager.getCurrentUser();
     if (!user) return;
@@ -235,7 +226,7 @@ async function loadUserProfile(userId) {
             `;
     }
   } catch (error) {
-    console.error("Failed to load user profile:", error);
+    window.lastMoodError = error;
   }
 }
 
@@ -275,7 +266,7 @@ async function loadEnrollmentsTab() {
       container.appendChild(item);
     }
   } catch (error) {
-    console.error("Failed to load enrollments:", error);
+    window.lastMoodError = error;
   }
 }
 
@@ -366,5 +357,3 @@ function showSection(sectionId) {
     section.style.display = "block";
   }
 }
-
-console.log("MOOD Application loaded");

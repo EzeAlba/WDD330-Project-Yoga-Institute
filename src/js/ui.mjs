@@ -3,10 +3,10 @@
  * Handles all user interface interactions and DOM manipulation
  */
 
-import ClassManager from "./classes.js";
-import EnrollmentManager from "./enrollment.js";
-import PaymentManager from "./payment.js";
-import DashboardManager from "./dashboard.js";
+import ClassManager from "./classes.mjs";
+import EnrollmentManager from "./enrollment.mjs";
+import PaymentManager from "./payment.mjs";
+import DashboardManager from "./dashboard.mjs";
 
 export default class UIManager {
   constructor(

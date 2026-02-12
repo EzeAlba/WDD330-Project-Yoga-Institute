@@ -2,8 +2,8 @@
  * Enrollment Module
  * Handles student enrollment in classes and enrollment tracking
  */
-import AuthManager from "./auth.js";
-import ClassManager from "./classes.js";
+import AuthManager from "./auth.mjs";
+import ClassManager from "./classes.mjs";
 
 export default class EnrollmentManager {
   constructor(api, authManager, classManager) {

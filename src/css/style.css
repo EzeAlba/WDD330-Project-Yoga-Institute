@@ -544,7 +544,7 @@ select.input {
 /* ========================================
    Footer
    ======================================== */
-.dy-footer {
+#dy-footer {
   background-color: var(--color-almost-black);
   color: var(--color-white);
   text-align: center;
@@ -552,7 +552,7 @@ select.input {
   margin-top: var(--spacing-xxl);
 }
 
-.dy-footer p {
+#dy-footer p {
   margin: 0;
 }
 
