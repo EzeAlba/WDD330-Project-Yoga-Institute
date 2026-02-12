@@ -2,9 +2,6 @@
  * Enrollment Module
  * Handles student enrollment in classes and enrollment tracking
  */
-import AuthManager from "./auth.js";
-import ClassManager from "./classes.js";
-
 export default class EnrollmentManager {
   constructor(api, authManager, classManager) {
     this.authManager = authManager;
@@ -20,10 +17,12 @@ export default class EnrollmentManager {
       const user = this.authManager.getCurrentUser();
       if (!user) {
         throw new Error("User must be logged in to enroll");
+        //show an alert in the future instead of throwing an error, and redirect to login page
       }
 
       if (user.role !== "student") {
         throw new Error("Only students can enroll in classes");
+        //show an alert in the future instead of throwing an error
       }
 
       const yogaClass = await this.classManager.getClassById(classId);
@@ -41,6 +40,7 @@ export default class EnrollmentManager {
       }
 
       const enrollment = {
+        // Generate a unique ID for the enrollment
         id: "enrollment_" + Math.random().toString(36).substr(2, 9),
         studentId: user.id,
         classId: classId,
@@ -59,7 +59,7 @@ export default class EnrollmentManager {
       this.saveEnrollments();
       return enrollment;
     } catch (error) {
-      console.error("Enrollment failed:", error);
+      this.lastError = error;
       throw error;
     }
   }
@@ -93,7 +93,7 @@ export default class EnrollmentManager {
 
       this.saveEnrollments();
     } catch (error) {
-      console.error("Failed to drop class:", error);
+      this.lastError = error;
       throw error;
     }
   }
@@ -147,7 +147,7 @@ export default class EnrollmentManager {
       this.saveEnrollments();
       return enrollment;
     } catch (error) {
-      console.error("Failed to update enrollment:", error);
+      this.lastError = error;
       throw error;
     }
   }
@@ -166,7 +166,50 @@ export default class EnrollmentManager {
       this.saveEnrollments();
       return enrollment;
     } catch (error) {
-      console.error("Failed to update payment status:", error);
+      this.lastError = error;
+      throw error;
+    }
+  }
+
+  /**
+   * Mark attendance for an enrollment (Instructor/Admin)
+   */
+  async updateAttendance(enrollmentId, attended) {
+    try {
+      const user = this.authManager.getCurrentUser();
+      if (!user) {
+        throw new Error("User must be logged in");
+      }
+
+      const enrollment = this.enrollments.find((e) => e.id === enrollmentId);
+      if (!enrollment) {
+        throw new Error("Enrollment not found");
+      }
+
+      if (user.role !== "admin") {
+        if (user.role !== "instructor") {
+          throw new Error("Only instructors and admins can update attendance");
+        }
+
+        const yogaClass = await this.classManager.getClassById(
+          enrollment.classId,
+        );
+        if (
+          !yogaClass ||
+          (yogaClass.instructorId !== user.id &&
+            yogaClass.instructorId !== user.uid)
+        ) {
+          throw new Error(
+            "You can only update attendance for your own classes",
+          );
+        }
+      }
+
+      enrollment.attended = Boolean(attended);
+      this.saveEnrollments();
+      return enrollment;
+    } catch (error) {
+      this.lastError = error;
       throw error;
     }
   }
@@ -180,7 +223,7 @@ export default class EnrollmentManager {
       throw new Error("Enrollment not found");
     }
 
-    const yogaClass = await classManager.getClassById(enrollment.classId);
+    const yogaClass = await this.classManager.getClassById(enrollment.classId);
     return {
       ...enrollment,
       classDetails: yogaClass,
@@ -195,7 +238,9 @@ export default class EnrollmentManager {
     const enriched = [];
 
     for (const enrollment of myEnrollments) {
-      const yogaClass = await classManager.getClassById(enrollment.classId);
+      const yogaClass = await this.classManager.getClassById(
+        enrollment.classId,
+      );
       enriched.push({
         ...enrollment,
         classDetails: yogaClass,

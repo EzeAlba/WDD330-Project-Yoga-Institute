@@ -35,7 +35,7 @@ export default class AuthManager {
       this.setSession(user);
       return user;
     } catch (error) {
-      console.error("Login failed:", error);
+      this.lastError = error;
       throw error;
     }
   }
@@ -64,7 +64,7 @@ export default class AuthManager {
       this.setSession(user);
       return user;
     } catch (error) {
-      console.error("Registration failed:", error);
+      this.lastError = error;
       throw error;
     }
   }
@@ -135,16 +135,30 @@ export default class AuthManager {
       this.saveUser(this.currentUser);
       return this.currentUser;
     } catch (error) {
-      console.error("Profile update failed:", error);
+      this.lastError = error;
       throw error;
     }
   }
 
   async loginWithGoogle() {
-    const result = await signInWithPopup(auth, provider);
-    const user = await this.getOrCreateUser(result.user);
-    this.setSession(user);
-    return user;
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = await this.getOrCreateUser(result.user);
+      this.setSession(user);
+      return user;
+    } catch (error) {
+      // Ignore COOP/popup warnings - they're browser console warnings, not actual errors
+      // Only handle actual Firebase auth errors
+      if (error.code === "auth/popup-blocked") {
+        throw new Error("Pop-up was blocked by your browser. Please allow pop-ups and try again.");
+      }
+      if (error.code === "auth/cancelled-popup-request") {
+        // User cancelled - don't show error notification, just return
+        return null;
+      }
+      // Re-throw other actual errors
+      throw error;
+    }
   }
 
   async upsertUserProfile(firebaseUser, overrides = {}) {

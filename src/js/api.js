@@ -47,7 +47,6 @@ export default class APIHandler {
 
       return await response.json();
     } catch (error) {
-      console.error("API Error:", error);
       this.handleError(error);
       throw error;
     }
@@ -92,11 +91,11 @@ export default class APIHandler {
    */
   handleError(error) {
     if (error.message === "Request timeout") {
-      console.error("Request timed out");
+      this.lastError = "Request timed out";
     } else if (error instanceof TypeError) {
-      console.error("Network error:", error);
+      this.lastError = "Network error";
     } else {
-      console.error("API error:", error);
+      this.lastError = "API error";
     }
   }
 }

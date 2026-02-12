@@ -3,11 +3,6 @@
  * Handles all user interface interactions and DOM manipulation
  */
 
-import ClassManager from "./classes.js";
-import EnrollmentManager from "./enrollment.js";
-import PaymentManager from "./payment.js";
-import DashboardManager from "./dashboard.js";
-
 export default class UIManager {
   constructor(
     authManager,
@@ -134,8 +129,7 @@ export default class UIManager {
     try {
       const classes = await this.classManager.getAllClasses();
       this.displayClasses(classes);
-    } catch (error) {
-      console.error("Failed to load classes:", error);
+    } catch {
       this.showNotification("Failed to load classes", "error");
     }
   }
@@ -213,15 +207,14 @@ export default class UIManager {
                 <p><strong>Available Spots:</strong> ${availableSpots} / ${yogaClass.maxStudents}</p>
                 <p><strong>Description:</strong></p>
                 <p>${yogaClass.description}</p>
-                ${
-                  user && user.role === "student"
-                    ? `
+                ${user && user.role === "student"
+          ? `
                     <button class="btn btn-primary" id="enrollBtn" ${isEnrolled ? "disabled" : ""}>
                         ${isEnrolled ? "Already Enrolled" : "Enroll Now"}
                     </button>
                 `
-                    : ""
-                }
+          : ""
+        }
             `;
 
       if (user && user.role === "student" && !isEnrolled) {
@@ -231,8 +224,7 @@ export default class UIManager {
       }
 
       this.openModal("classModal");
-    } catch (error) {
-      console.error("Failed to load class details:", error);
+    } catch {
       this.showNotification("Failed to load class details", "error");
     }
   }
@@ -242,12 +234,11 @@ export default class UIManager {
    */
   async enrollInClass(classId) {
     try {
-      const enrollment = await this.enrollmentManager.enrollStudent(classId);
+      await this.enrollmentManager.enrollStudent(classId);
       this.showNotification("Successfully enrolled in class!", "success");
       this.closeModal("classModal");
       this.loadClasses();
     } catch (error) {
-      console.error("Enrollment failed:", error);
       this.showNotification(error.message || "Enrollment failed", "error");
     }
   }
@@ -281,10 +272,13 @@ export default class UIManager {
       await this.authManager.login(email, password);
       this.showNotification("Login successful!", "success");
       this.closeModal("loginModal");
-      this.updateUIState();
       document.getElementById("loginForm").reset();
-    } catch (error) {
-      console.error("Login error:", error);
+
+      // Refresh page to show correct content based on user role
+      setTimeout(() => {
+        window.location.href = "/index.html";
+      }, 500);
+    } catch {
       this.showNotification("Login failed. Please try again.", "error");
     }
   }
@@ -303,10 +297,13 @@ export default class UIManager {
       await this.authManager.register(email, password, name, role);
       this.showNotification("Registration successful!", "success");
       this.closeModal("registerModal");
-      this.updateUIState();
       document.getElementById("registerForm").reset();
-    } catch (error) {
-      console.error("Registration error:", error);
+
+      // Refresh page to show correct content based on user role
+      setTimeout(() => {
+        window.location.href = "/index.html";
+      }, 500);
+    } catch {
       this.showNotification("Registration failed. Please try again.", "error");
     }
   }
@@ -317,15 +314,42 @@ export default class UIManager {
   async handleLogout() {
     await this.authManager.logout();
     this.showNotification("Logged out successfully", "success");
-    this.updateUIState();
+
+    // Navigate to home and refresh the page to clear all cached content
+    setTimeout(() => {
+      window.location.href = "/index.html";
+    }, 500); // Small delay to let the notification show
   }
 
   /**
    * Handle Google login
    */
   async handleGoogleLogin() {
-    await this.authManager.loginWithGoogle();
-    this.updateUIState();
+    try {
+      const result = await this.authManager.loginWithGoogle();
+
+      // Only proceed if login was successful (not cancelled)
+      if (!result) return;
+
+      this.showNotification("Login successful!", "success");
+
+      // Close both modals in case they were opened from either
+      this.closeModal("loginModal");
+      this.closeModal("registerModal");
+
+      // Reset both forms
+      const loginForm = document.getElementById("loginForm");
+      const registerForm = document.getElementById("registerForm");
+      if (loginForm) loginForm.reset();
+      if (registerForm) registerForm.reset();
+
+      // Refresh page to show correct content based on user role
+      setTimeout(() => {
+        window.location.href = "/index.html";
+      }, 500);
+    } catch (error) {
+      this.showNotification(error.message || "Google login failed. Please try again.", "error");
+    }
   }
 
   /**

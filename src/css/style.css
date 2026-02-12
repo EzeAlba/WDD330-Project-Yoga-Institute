@@ -498,6 +498,36 @@ select.input {
   color: var(--color-dark-purple);
 }
 
+.admin-card {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-medium-gray);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  margin-top: var(--spacing-lg);
+}
+
+.admin-actions {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+  border-bottom: 1px solid var(--color-medium-gray);
+  text-align: left;
+  padding: var(--spacing-sm);
+}
+
+.admin-table th {
+  color: var(--color-dark-gray);
+  font-size: var(--font-size-small);
+}
+
 /* ========================================
    Modal
    ======================================== */
@@ -544,7 +574,7 @@ select.input {
 /* ========================================
    Footer
    ======================================== */
-.dy-footer {
+#dy-footer {
   background-color: var(--color-almost-black);
   color: var(--color-white);
   text-align: center;
@@ -552,7 +582,7 @@ select.input {
   margin-top: var(--spacing-xxl);
 }
 
-.dy-footer p {
+#dy-footer p {
   margin: 0;
 }
 

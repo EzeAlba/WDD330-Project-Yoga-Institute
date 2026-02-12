@@ -2,10 +2,6 @@
  * Payment Module
  * Handles class payment processing and payment tracking
  */
-import AuthManager from "./auth.js";
-import ClassManager from "./classes.js";
-import EnrollmentManager from "./enrollment.js";
-
 export default class PaymentManager {
   constructor(api, authManager, classManager, enrollmentManager) {
     this.authManager = authManager;
@@ -57,7 +53,7 @@ export default class PaymentManager {
 
       return payment;
     } catch (error) {
-      console.error("Payment processing failed:", error);
+      this.lastError = error;
       throw error;
     }
   }
@@ -89,7 +85,7 @@ export default class PaymentManager {
       this.savePayments();
       return payment;
     } catch (error) {
-      console.error("Payment confirmation failed:", error);
+      this.lastError = error;
       throw error;
     }
   }
@@ -110,7 +106,7 @@ export default class PaymentManager {
    * Get all pending payments (Admin only)
    */
   getPendingPayments() {
-    const user = authManager.getCurrentUser();
+    const user = this.authManager.getCurrentUser();
     if (!user || user.role !== "admin") {
       return [];
     }
@@ -146,7 +142,8 @@ export default class PaymentManager {
    */
   getInstructorRevenue(instructorId) {
     // Get all classes taught by instructor
-    const instructorClasses = classManager.getClassesByInstructor(instructorId);
+    const instructorClasses =
+      this.classManager.getClassesByInstructor(instructorId);
     const classIds = instructorClasses.map((c) => c.id);
 
     // Get all confirmed payments for those classes
