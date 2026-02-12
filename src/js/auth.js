@@ -5,7 +5,14 @@
 
 //Adding Google Firebase for authentication (optional, can be replaced with custom backend)
 import { auth, provider, db } from "./firebase";
-import { onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+  updateProfile as updateAuthProfile,
+} from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import APIHandler from "./api";
 
@@ -48,8 +55,9 @@ export default class AuthManager {
    */
   async login(email, password) {
     try {
-      // Transitioned to Firebase Google login
-      const user = await this.loginWithGoogle();
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      const user = await this.getOrCreateUser(result.user);
+      this.setSession(user);
       return user;
     } catch (error) {
       console.error("Login failed:", error);
@@ -62,8 +70,23 @@ export default class AuthManager {
    */
   async register(email, password, name, role) {
     try {
-      // Transitioned to Firebase Google login (no separate registration needed)
-      const user = await this.loginWithGoogle();
+      const result = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+
+      if (name) {
+        await updateAuthProfile(result.user, { displayName: name });
+      }
+
+      await this.upsertUserProfile(result.user, {
+        name,
+        role: role || "student",
+      });
+
+      const user = await this.getOrCreateUser(result.user);
+      this.setSession(user);
       return user;
     } catch (error) {
       console.error("Registration failed:", error);
@@ -147,6 +170,37 @@ export default class AuthManager {
     const user = await this.getOrCreateUser(result.user);
     this.setSession(user);
     return user;
+  }
+
+  async upsertUserProfile(firebaseUser, overrides = {}) {
+    const userRef = doc(db, "users", firebaseUser.uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      await setDoc(userRef, {
+        uid: firebaseUser.uid,
+        name:
+          overrides.name ||
+          firebaseUser.displayName ||
+          firebaseUser.email?.split("@")[0],
+        email: firebaseUser.email,
+        role: overrides.role || "student",
+        createdAt: new Date(),
+      });
+      return;
+    }
+
+    const updates = {
+      name:
+        overrides.name ||
+        userSnap.data().name ||
+        firebaseUser.displayName ||
+        firebaseUser.email?.split("@")[0],
+      role: overrides.role || userSnap.data().role || "student",
+      email: firebaseUser.email,
+    };
+
+    await setDoc(userRef, updates, { merge: true });
   }
 
   async getOrCreateUser(firebaseUser) {

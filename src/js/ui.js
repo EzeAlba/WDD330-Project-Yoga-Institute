@@ -275,9 +275,11 @@ export default class UIManager {
    */
   async handleLogin(e) {
     e.preventDefault();
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
 
     try {
-      await this.handleGoogleLogin();
+      await this.authManager.login(email, password);
       this.showNotification("Login successful!", "success");
       this.closeModal("loginModal");
       this.updateUIState();
@@ -293,9 +295,13 @@ export default class UIManager {
    */
   async handleRegister(e) {
     e.preventDefault();
+    const email = document.getElementById("registerEmail").value.trim();
+    const password = document.getElementById("registerPassword").value;
+    const name = document.getElementById("registerName").value.trim();
+    const role = document.getElementById("registerRole").value;
 
     try {
-      await this.handleGoogleLogin();
+      await this.authManager.register(email, password, name, role);
       this.showNotification("Registration successful!", "success");
       this.closeModal("registerModal");
       this.updateUIState();
