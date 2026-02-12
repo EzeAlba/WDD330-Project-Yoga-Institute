@@ -40,15 +40,25 @@ function renderWithTemplate(template, parentElement) {
 // Load header and footer on every page
 export async function loadHeaderFooter() {
   try {
+    const basePath = `${import.meta.env.BASE_URL || "/"}`.replace(/\/+$/, "");
+
     // Load header
-    const headerTemplate = await loadTemplate("../public/partials/header.html");
+    const headerTemplate = await loadTemplate(
+      `${basePath}/partials/header.html`,
+    );
     const headerElement = qs("#dy-header");
-    renderWithTemplate(headerTemplate, headerElement);
+    if (headerElement) {
+      renderWithTemplate(headerTemplate, headerElement);
+    }
 
     // Load footer
-    const footerTemplate = await loadTemplate("../public/partials/footer.html");
+    const footerTemplate = await loadTemplate(
+      `${basePath}/partials/footer.html`,
+    );
     const footerElement = qs("#dy-footer");
-    renderWithTemplate(footerTemplate, footerElement);
+    if (footerElement) {
+      renderWithTemplate(footerTemplate, footerElement);
+    }
   } catch (error) {
     console.error("Error loading header/footer:", error);
   }

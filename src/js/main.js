@@ -11,29 +11,18 @@ import EnrollmentManager from "./enrollment.js";
 import PaymentManager from "./payment.js";
 import DashboardManager from "./dashboard.js";
 import UIManager from "./ui.js";
+import { loadHeaderFooter } from "./utils.mjs";
 
 // Make managers globally accessible for debugging
 window.debugManagers = {};
 
-// Initialize Firebase and authentication
-const api = new APIHandler();
-const authManager = new AuthManager();
-const classManager = new ClassManager(api);
-const enrollmentManager = new EnrollmentManager(api, authManager, classManager);
-const paymentManager = new PaymentManager(
-  api,
-  authManager,
-  classManager,
-  enrollmentManager,
-);
-const dashboardManager = new DashboardManager(api, authManager);
-const uiManager = new UIManager(
-  authManager,
-  classManager,
-  enrollmentManager,
-  paymentManager,
-  dashboardManager,
-);
+let api;
+let authManager;
+let classManager;
+let enrollmentManager;
+let paymentManager;
+let dashboardManager;
+let uiManager;
 
 class MoodApp {
   constructor() {
@@ -126,36 +115,75 @@ class MoodApp {
 const app = new MoodApp();
 
 // Initialize app when DOM is ready
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadHeaderFooter();
+  initializeManagers();
+  setupNavigationHandlers();
+  setupProfileLinkHandler();
   app.init();
 });
 
-// Handle navigation between sections
-document.querySelectorAll(".nav-link").forEach((link) => {
-  link.addEventListener("click", (e) => {
-    const target = link.getAttribute("href");
-    if (target && target.startsWith("#")) {
-      // Scroll to section
-      const element = document.querySelector(target);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
+function initializeManagers() {
+  api = new APIHandler();
+  authManager = new AuthManager();
+  classManager = new ClassManager(api);
+  enrollmentManager = new EnrollmentManager(api, authManager, classManager);
+  paymentManager = new PaymentManager(
+    api,
+    authManager,
+    classManager,
+    enrollmentManager,
+  );
+  dashboardManager = new DashboardManager(api, authManager);
+  uiManager = new UIManager(
+    authManager,
+    classManager,
+    enrollmentManager,
+    paymentManager,
+    dashboardManager,
+  );
+
+  window.debugManagers = {
+    api,
+    authManager,
+    classManager,
+    enrollmentManager,
+    paymentManager,
+    dashboardManager,
+    uiManager,
+  };
+}
+
+function setupNavigationHandlers() {
+  document.querySelectorAll(".nav-link").forEach((link) => {
+    link.addEventListener("click", () => {
+      const target = link.getAttribute("href");
+      if (target && target.startsWith("#")) {
+        const element = document.querySelector(target);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
       }
+    });
+  });
+}
+
+function setupProfileLinkHandler() {
+  const profileLink = document.getElementById("profileLink");
+  if (!profileLink) return;
+
+  profileLink.addEventListener("click", () => {
+    const user = authManager.getCurrentUser();
+    if (user) {
+      // Load user profile data
+      loadUserProfile(user.id);
+      document.getElementById("profile").style.display = "block";
+      document.getElementById("home").style.display = "none";
+      document.getElementById("classes").style.display = "none";
+      document.getElementById("dashboard").style.display = "none";
     }
   });
-});
-
-// Handle profile link
-document.getElementById("profileLink").addEventListener("click", () => {
-  const user = authManager.getCurrentUser();
-  if (user) {
-    // Load user profile data
-    loadUserProfile(user.id);
-    document.getElementById("profile").style.display = "block";
-    document.getElementById("home").style.display = "none";
-    document.getElementById("classes").style.display = "none";
-    document.getElementById("dashboard").style.display = "none";
-  }
-});
+}
 
 /**
  * Load user profile data

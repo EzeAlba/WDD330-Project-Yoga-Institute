@@ -3,7 +3,6 @@
  * Handles all user interface interactions and DOM manipulation
  */
 
-import AuthManager from "./auth";
 import ClassManager from "./classes.js";
 import EnrollmentManager from "./enrollment.js";
 import PaymentManager from "./payment.js";

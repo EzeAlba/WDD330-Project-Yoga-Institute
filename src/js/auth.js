@@ -16,31 +16,6 @@ import {
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import APIHandler from "./api";
 
-export async function loginWithGoogle() {
-  const result = await signInWithPopup(auth, provider);
-  const user = result.user;
-
-  const userRef = doc(db, "users", user.uid);
-  const userSnap = await getDoc(userRef);
-
-  // If user does NOT exist, create it
-  if (!userSnap.exists()) {
-    await setDoc(userRef, {
-      uid: user.uid,
-      name: user.displayName,
-      email: user.email,
-      role: "student", // default role
-      createdAt: new Date(),
-    });
-  }
-
-  return user;
-}
-
-export async function logoutUser() {
-  await signOut(auth);
-}
-
 const api = new APIHandler();
 
 export default class AuthManager {
@@ -98,7 +73,7 @@ export default class AuthManager {
    * User logout
    */
   async logout() {
-    await logoutUser();
+    await signOut(auth);
     this.currentUser = null;
     this.isAuthenticated = false;
     this.removeUser();
