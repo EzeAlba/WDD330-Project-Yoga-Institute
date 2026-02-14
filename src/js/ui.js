@@ -24,56 +24,42 @@ export default class UIManager {
    * Initialize event listeners
    */
   initializeEventListeners() {
+    // Helper function to safely attach listeners
+    const attachListener = (selector, event, handler) => {
+      const element = document.getElementById(selector);
+      if (element) {
+        element.addEventListener(event, handler);
+      }
+    };
+
     // Navigation
-    document
-      .getElementById("loginBtn")
-      .addEventListener("click", () => this.showLoginModal());
-    document
-      .getElementById("registerBtn")
-      .addEventListener("click", () => this.showRegisterModal());
-    document
-      .getElementById("logoutLink")
-      .addEventListener("click", () => this.handleLogout());
-    document
-      .getElementById("menuToggle")
-      .addEventListener("click", () => this.toggleMenu());
+    attachListener("loginBtn", "click", () => this.showLoginModal());
+    attachListener("registerBtn", "click", () => this.showRegisterModal());
+    attachListener("logoutLink", "click", () => this.handleLogout());
+    attachListener("menuToggle", "click", () => this.toggleMenu());
 
     // Login Form
-    document
-      .getElementById("loginForm")
-      .addEventListener("submit", (e) => this.handleLogin(e));
+    attachListener("loginForm", "submit", (e) => this.handleLogin(e));
     const googleLoginBtn = document.getElementById("googleLoginBtn");
     if (googleLoginBtn) {
       googleLoginBtn.addEventListener("click", () => this.handleGoogleLogin());
     }
-    document
-      .getElementById("closeLoginModal")
-      .addEventListener("click", () => this.closeModal("loginModal"));
+    attachListener("closeLoginModal", "click", () => this.closeModal("loginModal"));
 
     // Register Form
-    document
-      .getElementById("registerForm")
-      .addEventListener("submit", (e) => this.handleRegister(e));
+    attachListener("registerForm", "submit", (e) => this.handleRegister(e));
     const googleRegisterBtn = document.getElementById("googleRegisterBtn");
     if (googleRegisterBtn) {
       googleRegisterBtn.addEventListener("click", () =>
         this.handleGoogleLogin(),
       );
     }
-    document
-      .getElementById("closeRegisterModal")
-      .addEventListener("click", () => this.closeModal("registerModal"));
+    attachListener("closeRegisterModal", "click", () => this.closeModal("registerModal"));
 
     // Filters
-    document
-      .getElementById("searchInput")
-      .addEventListener("input", () => this.filterClasses());
-    document
-      .getElementById("difficultyFilter")
-      .addEventListener("change", () => this.filterClasses());
-    document
-      .getElementById("dayFilter")
-      .addEventListener("change", () => this.filterClasses());
+    attachListener("searchInput", "input", () => this.filterClasses());
+    attachListener("difficultyFilter", "change", () => this.filterClasses());
+    attachListener("dayFilter", "change", () => this.filterClasses());
 
     // Profile tabs
     document.querySelectorAll(".profile-nav-btn").forEach((btn) => {
@@ -83,9 +69,7 @@ export default class UIManager {
     });
 
     // Modal close
-    document
-      .getElementById("closeModal")
-      .addEventListener("click", () => this.closeModal("classModal"));
+    attachListener("closeModal", "click", () => this.closeModal("classModal"));
     window.addEventListener("click", (e) => this.handleModalClick(e));
   }
 
@@ -96,29 +80,38 @@ export default class UIManager {
     const isAuthenticated = this.authManager.checkAuth();
     const user = this.authManager.getCurrentUser();
 
+    // Helper to safely update element visibility
+    const updateElement = (selector, display, property = "style") => {
+      const element = document.getElementById(selector);
+      if (element) {
+        element.style.display = display;
+      }
+    };
+
+    // Helper to safely set text content
+    const updateText = (selector, text) => {
+      const element = document.getElementById(selector);
+      if (element) {
+        element.textContent = text;
+      }
+    };
+
     if (isAuthenticated && user) {
       // Hide auth buttons
-      document.getElementById("authContainer").style.display = "none";
-      document.getElementById("userGreeting").style.display = "block";
-      document.getElementById("greetingText").textContent =
-        `Welcome, ${user.name}!`;
-      document.getElementById("profileLink").style.display = "block";
-      document.getElementById("logoutLink").style.display = "block";
-
-      // Show admin dashboard if admin
-      if (user.role === "admin") {
-        document.getElementById("dashboard").style.display = "block";
-        this.loadAdminDashboard();
-      }
+      updateElement("authContainer", "none");
+      updateElement("userGreeting", "block");
+      updateText("greetingText", `Welcome, ${user.name}!`);
+      updateElement("profileLink", "block");
+      updateElement("logoutLink", "block");
 
       // Load classes
       this.loadClasses();
     } else {
       // Show auth buttons
-      document.getElementById("authContainer").style.display = "flex";
-      document.getElementById("userGreeting").style.display = "none";
-      document.getElementById("profileLink").style.display = "none";
-      document.getElementById("logoutLink").style.display = "none";
+      updateElement("authContainer", "flex");
+      updateElement("userGreeting", "none");
+      updateElement("profileLink", "none");
+      updateElement("logoutLink", "none");
     }
   }
 

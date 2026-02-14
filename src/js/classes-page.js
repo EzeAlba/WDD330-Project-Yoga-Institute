@@ -13,12 +13,14 @@ import APIHandler from "./api.js";
 const api = new APIHandler();
 const authManager = new AuthManager();
 const classManager = new ClassManager(api);
-const uiManager = new UIManager(authManager, classManager, null, null, null);
 
 // Load header and footer
 document.addEventListener("DOMContentLoaded", async () => {
   // Load header and footer first
   await loadHeaderFooter();
+
+  // Create UIManager AFTER header/footer are loaded
+  const uiManager = new UIManager(authManager, classManager, null, null, null);
 
   // Setup filter listeners
   const searchInput = document.getElementById("searchInput");
