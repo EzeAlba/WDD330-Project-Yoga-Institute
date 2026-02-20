@@ -41,6 +41,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   loadProfileData(user);
   configureTabsForRole(user);
   setupTabNavigation(user);
+  loadProfileInfoTab(user);
 
   if (user.role === "instructor") {
     await loadInstructorClassesTab(user);
@@ -96,9 +97,233 @@ function loadProfileData(user) {
 
   userInfo.innerHTML = `
     <h3>${user.name}</h3>
-    <p><strong>Email:</strong> ${user.email}</p>
-    <p><strong>Role:</strong> ${user.role}</p>
+    <p><strong>Correo electrónico:</strong> ${user.email}</p>
+    <p><strong>Tipo de cuenta:</strong> ${user.role}</p>
   `;
+}
+
+function loadProfileInfoTab(user) {
+  try {
+    const container = document.getElementById("profileInfoContainer");
+    if (!container) return;
+
+    let profileHTML = `
+      <div style="background-color: #F9F9F9; padding: 20px; border-radius: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h4 style="margin: 0;">Información del perfil</h4>
+          <button class="btn btn-secondary" id="editProfileBtn" style="padding: 6px 12px; font-size: 12px;">Editar perfil</button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 150px 1fr; gap: 20px; align-items: start;">
+          <!-- Profile Picture -->
+          <div style="text-align: center;">
+            <div style="width: 150px; height: 150px; background-color: #E8E8E8; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+              ${
+                user.profilePicture
+                  ? `<img src="${user.profilePicture}" alt="${user.name}" style="width: 100%; height: 100%; object-fit: cover;">`
+                  : `<span style="font-size: 48px;">📷</span>`
+              }
+            </div>
+          </div>
+
+          <!-- Profile Information -->
+          <div>
+            <div style="margin-bottom: 15px;">
+              <label style="font-weight: 600; color: #333;">Nombre:</label>
+              <p style="margin: 5px 0 0 0;">${user.name}</p>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+              <label style="font-weight: 600; color: #333;">Correo electrónico:</label>
+              <p style="margin: 5px 0 0 0;">${user.email}</p>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+              <label style="font-weight: 600; color: #333;">Número de teléfono:</label>
+              <p style="margin: 5px 0 0 0;">${user.phoneNumber || "No proporcionado"}</p>
+            </div>
+
+            ${
+              user.role === "student"
+                ? `
+              <div style="margin-bottom: 15px;">
+                <label style="font-weight: 600; color: #333;">Historial de salud:</label>
+                <p style="margin: 5px 0 0 0; color: ${user.healthHistory ? "#333" : "#999"};">
+                  ${user.healthHistory ? user.healthHistory : "No proporcionado"}
+                </p>
+              </div>
+            `
+                : ""
+            }
+
+            <div style="margin-bottom: 15px;">
+              <label style="font-weight: 600; color: #333;">Tipo de cuenta:</label>
+              <p style="margin: 5px 0 0 0; text-transform: capitalize;">${user.role}</p>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+              <label style="font-weight: 600; color: #333;">Miembro desde:</label>
+              <p style="margin: 5px 0 0 0;">
+                ${user.createdAt ? new Date(user.createdAt).toLocaleDateString("es-ES") : "Desconocido"}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    container.innerHTML = profileHTML;
+
+    // Setup edit profile button
+    const editBtn = container.querySelector("#editProfileBtn");
+    if (editBtn) {
+      editBtn.addEventListener("click", () => {
+        openEditProfileModal(user);
+      });
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error("Error al cargar la información del perfil", error);
+  }
+}
+
+function openEditProfileModal(user) {
+  const modal = document.getElementById("editProfileModal");
+  const editHealthSection = document.getElementById("editHealthHistorySection");
+
+  if (!modal) return;
+
+  // Show health history section only for students
+  if (editHealthSection) {
+    editHealthSection.style.display =
+      user.role === "student" ? "block" : "none";
+  }
+
+  // Populate form with current data
+  document.getElementById("editPhoneNumber").value = user.phoneNumber || "";
+  if (user.role === "student") {
+    document.getElementById("editHealthHistory").value =
+      user.healthHistory || "";
+  }
+
+  // Handle profile picture preview
+  const editPictureInput = document.getElementById("editProfilePicture");
+  const editPicturePreview = document.getElementById(
+    "editProfilePicturePreview",
+  );
+  const editPreviewImage = document.getElementById("editPreviewImage");
+  const currentPreview = document.getElementById("currentProfileImage");
+
+  if (user.profilePicture) {
+    currentPreview.src = user.profilePicture;
+    document.getElementById("currentProfilePicturePreview").style.display =
+      "block";
+  } else {
+    document.getElementById("currentProfilePicturePreview").style.display =
+      "none";
+  }
+
+  if (editPictureInput) {
+    editPictureInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        if (!file.type.startsWith("image/")) {
+          alert("Por favor, selecciona un archivo de imagen válido");
+          editPictureInput.value = "";
+          return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+          alert("El tamaño de la imagen no debe exceder 5MB");
+          editPictureInput.value = "";
+          return;
+        }
+
+        // eslint-disable-next-line no-undef
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          editPreviewImage.src = event.target.result;
+          editPicturePreview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  // Handle form submission
+  const editForm = document.getElementById("editProfileForm");
+  if (editForm) {
+    editForm.onsubmit = async (e) => {
+      e.preventDefault();
+      await handleEditProfileSubmit(user);
+    };
+  }
+
+  // Handle close button
+  const closeBtn = document.getElementById("closeEditProfileModal");
+  if (closeBtn) {
+    closeBtn.onclick = () => {
+      modal.style.display = "none";
+    };
+  }
+
+  // Handle cancel button
+  const cancelBtn = document.getElementById("cancelEditProfileBtn");
+  if (cancelBtn) {
+    cancelBtn.addEventListener("click", () => {
+      modal.style.display = "none";
+    });
+  }
+
+  modal.style.display = "flex";
+}
+
+async function handleEditProfileSubmit(user) {
+  try {
+    const phoneNumber = document.getElementById("editPhoneNumber").value.trim();
+    const editPictureInput = document.getElementById("editProfilePicture");
+
+    if (!phoneNumber) {
+      alert("Número de teléfono es requerido");
+      return;
+    }
+
+    const profileData = {
+      phoneNumber,
+    };
+
+    if (user.role === "student") {
+      const healthHistory = document
+        .getElementById("editHealthHistory")
+        .value.trim();
+      if (!healthHistory) {
+        alert("Historial de salud es requerido para estudiantes");
+        return;
+      }
+      profileData.healthHistory = healthHistory;
+    }
+
+    // Only convert new picture if one was selected
+    if (editPictureInput.files[0]) {
+      profileData.profilePictureBase64 = await authManager.fileToBase64(
+        editPictureInput.files[0],
+      );
+    }
+
+    // Update profile
+    await authManager.updateProfileInfo(profileData);
+
+    alert("¡Perfil actualizado con éxito!");
+    document.getElementById("editProfileModal").style.display = "none";
+    document.getElementById("editProfileForm").reset();
+    document.getElementById("editProfilePicturePreview").style.display = "none";
+
+    // Get the updated user and reload profile info
+    const updatedUser = authManager.getCurrentUser();
+    loadProfileInfoTab(updatedUser);
+  } catch (error) {
+    alert(error.message || "Error al actualizar el perfil");
+  }
 }
 
 function setupTabNavigation(user) {
@@ -153,19 +378,20 @@ function configureTabsForRole(user) {
   const attendanceTitle = document.querySelector("#attendance h3");
 
   if (user.role === "instructor") {
-    if (enrollmentsBtn) enrollmentsBtn.textContent = "My Classes";
-    if (paymentsBtn) paymentsBtn.textContent = "Students";
-    if (attendanceBtn) attendanceBtn.textContent = "Attendance";
-    if (enrollmentsTitle) enrollmentsTitle.textContent = "Classes I Teach";
-    if (paymentsTitle) paymentsTitle.textContent = "Enrolled Students";
-    if (attendanceTitle) attendanceTitle.textContent = "Attendance Management";
+    if (enrollmentsBtn) enrollmentsBtn.textContent = "Mis Clases";
+    if (paymentsBtn) paymentsBtn.textContent = "Estudiantes";
+    if (attendanceBtn) attendanceBtn.textContent = "Asistencia";
+    if (enrollmentsTitle) enrollmentsTitle.textContent = "Clases que Imparto";
+    if (paymentsTitle) paymentsTitle.textContent = "Estudiantes Inscritos";
+    if (attendanceTitle) attendanceTitle.textContent = "Gestión de Asistencia";
   } else {
-    if (enrollmentsBtn) enrollmentsBtn.textContent = "My Enrollments";
-    if (paymentsBtn) paymentsBtn.textContent = "Payments";
-    if (attendanceBtn) attendanceBtn.textContent = "Attendance";
-    if (enrollmentsTitle) enrollmentsTitle.textContent = "My Enrolled Classes";
-    if (paymentsTitle) paymentsTitle.textContent = "Payment History";
-    if (attendanceTitle) attendanceTitle.textContent = "Attendance Records";
+    if (enrollmentsBtn) enrollmentsBtn.textContent = "Mis Inscripciones";
+    if (paymentsBtn) paymentsBtn.textContent = "Pagos";
+    if (attendanceBtn) attendanceBtn.textContent = "Asistencia";
+    if (enrollmentsTitle) enrollmentsTitle.textContent = "Mis Clases Inscritas";
+    if (paymentsTitle) paymentsTitle.textContent = "Historial de Pagos";
+    if (attendanceTitle)
+      attendanceTitle.textContent = "Registros de Asistencia";
   }
 }
 
@@ -179,7 +405,7 @@ async function loadStudentEnrollmentsTab() {
   container.innerHTML = "";
 
   if (enrollments.length === 0) {
-    container.innerHTML = '<p class="text-muted">No enrollments yet</p>';
+    container.innerHTML = '<p class="text-muted">No hay inscripciones aún</p>';
     return;
   }
 
@@ -193,16 +419,16 @@ async function loadStudentEnrollmentsTab() {
       item.innerHTML = `
         <h4>${yogaClass.title}</h4>
         <p><strong>Instructor:</strong> ${yogaClass.instructor}</p>
-        <p><strong>Schedule:</strong> ${yogaClass.schedule.day} at ${yogaClass.schedule.time}</p>
-        <p><strong>Status:</strong> ${enrollment.status}</p>
-        <p><strong>Payment:</strong> ${enrollment.paymentStatus}</p>
+        <p><strong>Horario:</strong> ${yogaClass.schedule.day} a las ${yogaClass.schedule.time}</p>
+        <p><strong>Estado:</strong> ${enrollment.status}</p>
+        <p><strong>Pago:</strong> ${enrollment.paymentStatus}</p>
       `;
     } else {
       item.innerHTML = `
-        <h4>Class Unavailable</h4>
-        <p><strong>Class ID:</strong> ${enrollment.classId}</p>
-        <p><strong>Status:</strong> ${enrollment.status}</p>
-        <p><strong>Payment:</strong> ${enrollment.paymentStatus}</p>
+        <h4>Clase No Disponible</h4>
+        <p><strong>ID de la Clase:</strong> ${enrollment.classId}</p>
+        <p><strong>Estado:</strong> ${enrollment.status}</p>
+        <p><strong>Pago:</strong> ${enrollment.paymentStatus}</p>
       `;
     }
 
@@ -220,7 +446,7 @@ function loadStudentPaymentsTab() {
   container.innerHTML = "";
 
   if (payments.length === 0) {
-    container.innerHTML = '<p class="text-muted">No payment history</p>';
+    container.innerHTML = '<p class="text-muted">No hay historial de pagos</p>';
     return;
   }
 
@@ -229,11 +455,11 @@ function loadStudentPaymentsTab() {
     item.style.cssText =
       "padding: 15px; border: 1px solid #E0E0E0; border-radius: 8px; margin-bottom: 10px;";
     item.innerHTML = `
-      <h4>Payment ${payment.transactionId}</h4>
-      <p><strong>Amount:</strong> $${Number(payment.amount).toFixed(2)}</p>
-      <p><strong>Date:</strong> ${new Date(payment.createdAt).toLocaleDateString()}</p>
-      <p><strong>Status:</strong> ${payment.status}</p>
-      <p><strong>Method:</strong> ${payment.paymentMethod}</p>
+      <h4>Pago ${payment.transactionId}</h4>
+      <p><strong>Monto:</strong> $${Number(payment.amount).toFixed(2)}</p>
+      <p><strong>Fecha:</strong> ${new Date(payment.createdAt).toLocaleDateString()}</p>
+      <p><strong>Estado:</strong> ${payment.status}</p>
+      <p><strong>Método:</strong> ${payment.paymentMethod}</p>
     `;
     container.appendChild(item);
   });
@@ -254,9 +480,9 @@ function loadStudentAttendanceTab() {
 
   container.innerHTML = `
     <div style="padding: 15px; background-color: #F5F5F5; border-radius: 8px;">
-      <h4>Attendance Summary</h4>
-      <p><strong>Attended:</strong> ${attended} / ${total} classes</p>
-      <p><strong>Rate:</strong> ${attendanceRate}%</p>
+      <h4>Resumen de Asistencia</h4>
+      <p><strong>Asistidas:</strong> ${attended} / ${total} clases</p>
+      <p><strong>Porcentaje:</strong> ${attendanceRate}%</p>
     </div>
   `;
 }
@@ -280,7 +506,7 @@ async function loadInstructorClassesTab(user) {
 
   if (myClasses.length === 0) {
     container.innerHTML =
-      '<p class="text-muted">No classes assigned to this instructor yet.</p>';
+      '<p class="text-muted">No hay clases asignadas a este instructor aún.</p>';
     return;
   }
 
@@ -290,9 +516,9 @@ async function loadInstructorClassesTab(user) {
       "padding: 15px; border: 1px solid #E0E0E0; border-radius: 8px; margin-bottom: 10px;";
     item.innerHTML = `
       <h4>${yogaClass.title}</h4>
-      <p><strong>Schedule:</strong> ${yogaClass.schedule.day} at ${yogaClass.schedule.time}</p>
-      <p><strong>Enrolled Students:</strong> ${yogaClass.enrolledStudents.length} / ${yogaClass.maxStudents}</p>
-      <p><strong>Difficulty:</strong> ${yogaClass.difficulty}</p>
+      <p><strong>Horario:</strong> ${yogaClass.schedule.day} a las ${yogaClass.schedule.time}</p>
+      <p><strong>Estudiantes Inscritos:</strong> ${yogaClass.enrolledStudents.length} / ${yogaClass.maxStudents}</p>
+      <p><strong>Dificultad:</strong> ${yogaClass.difficulty}</p>
     `;
     container.appendChild(item);
   });
@@ -309,7 +535,7 @@ async function loadInstructorStudentsTab(user) {
 
   if (myClasses.length === 0) {
     container.innerHTML =
-      '<p class="text-muted">No student list available until classes are assigned.</p>';
+      '<p class="text-muted">No hay lista de estudiantes disponible hasta que se asignen clases.</p>';
     return;
   }
 
@@ -327,7 +553,7 @@ async function loadInstructorStudentsTab(user) {
     if (classEnrollments.length === 0) {
       section.innerHTML = `
         <h4>${yogaClass.title}</h4>
-        <p class="text-muted">No enrolled students yet.</p>
+        <p class="text-muted">No hay estudiantes inscritos aún.</p>
       `;
       container.appendChild(section);
       return;
@@ -338,7 +564,7 @@ async function loadInstructorStudentsTab(user) {
       .map(
         (enrollment) => `
           <li>
-            Student: <strong>${enrollment.studentId}</strong> | Payment: ${enrollment.paymentStatus} | Status: ${enrollment.status}
+            Estudiante: <strong>${enrollment.studentId}</strong> | Pago: ${enrollment.paymentStatus} | Estado: ${enrollment.status}
           </li>
         `,
       )
@@ -346,7 +572,7 @@ async function loadInstructorStudentsTab(user) {
 
     section.innerHTML = `
       <h4>${yogaClass.title}</h4>
-      <p><strong>Total Students:</strong> ${classEnrollments.length}</p>
+      <p><strong>Total de Estudiantes:</strong> ${classEnrollments.length}</p>
       <ul>${rows}</ul>
     `;
     container.appendChild(section);
@@ -355,7 +581,7 @@ async function loadInstructorStudentsTab(user) {
   if (!hasStudents) {
     container.insertAdjacentHTML(
       "beforeend",
-      '<p class="text-muted">Students will appear here once they enroll.</p>',
+      '<p class="text-muted">Los estudiantes aparecerán aquí una vez que se inscriban.</p>',
     );
   }
 }
@@ -371,7 +597,7 @@ async function loadInstructorAttendanceTab(user) {
 
   if (myClasses.length === 0) {
     container.innerHTML =
-      '<p class="text-muted">No attendance records available yet.</p>';
+      '<p class="text-muted">No hay registros de asistencia disponibles aún.</p>';
     return;
   }
 
@@ -387,7 +613,7 @@ async function loadInstructorAttendanceTab(user) {
     if (classEnrollments.length === 0) {
       section.innerHTML = `
         <h4>${yogaClass.title}</h4>
-        <p class="text-muted">No students enrolled yet.</p>
+        <p class="text-muted">No hay estudiantes inscritos aún.</p>
       `;
       container.appendChild(section);
       return;
@@ -397,14 +623,14 @@ async function loadInstructorAttendanceTab(user) {
       .map(
         (enrollment) => `
           <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #E0E0E0; padding:8px 0;">
-            <span>Student: <strong>${enrollment.studentId}</strong></span>
+            <span>Estudiante: <strong>${enrollment.studentId}</strong></span>
             <button
               class="btn btn-secondary attendance-toggle-btn"
               data-enrollment-id="${enrollment.id}"
               data-attended="${enrollment.attended ? "true" : "false"}"
               style="padding:6px 10px; font-size:12px;"
             >
-              ${enrollment.attended ? "Present" : "Absent"}
+              ${enrollment.attended ? "Presente" : "Ausente"}
             </button>
           </div>
         `,
@@ -413,7 +639,7 @@ async function loadInstructorAttendanceTab(user) {
 
     section.innerHTML = `
       <h4>${yogaClass.title}</h4>
-      <p><strong>Tap to update attendance:</strong></p>
+      <p><strong>Toca para actualizar la asistencia:</strong></p>
       <div>${rows}</div>
     `;
     container.appendChild(section);
@@ -444,6 +670,7 @@ function bindInstructorAttendanceActions(user) {
       await loadInstructorAttendanceTab(user);
       await loadInstructorStudentsTab(user);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Failed to update attendance:", error);
     }
   });

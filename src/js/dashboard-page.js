@@ -168,7 +168,7 @@ function renderClassesTable(classes) {
   if (!container) return;
 
   if (!classes.length) {
-    container.innerHTML = '<p class="text-muted">No classes yet.</p>';
+    container.innerHTML = '<p class="text-muted">No hay clases aún.</p>';
     return;
   }
 
@@ -182,8 +182,8 @@ function renderClassesTable(classes) {
           <td>${yogaClass.schedule?.time || "-"}</td>
           <td>${yogaClass.enrolledStudents?.length || 0}/${yogaClass.maxStudents || 0}</td>
           <td>
-            <button class="btn btn-secondary" data-action="edit-class" data-class-id="${yogaClass.id}" style="padding: 6px 10px; font-size: 12px;">Edit</button>
-            <button class="btn btn-primary" data-action="delete-class" data-class-id="${yogaClass.id}" style="padding: 6px 10px; font-size: 12px;">Delete</button>
+            <button class="btn btn-secondary" data-action="edit-class" data-class-id="${yogaClass.id}" style="padding: 6px 10px; font-size: 12px;">Editar</button>
+            <button class="btn btn-primary" data-action="delete-class" data-class-id="${yogaClass.id}" style="padding: 6px 10px; font-size: 12px;">Eliminar</button>
           </td>
         </tr>
       `,
@@ -242,7 +242,7 @@ function populateClassForm(yogaClass) {
     yogaClass.schedule?.day || "monday";
   document.getElementById("classTime").value =
     yogaClass.schedule?.time || "09:00";
-  document.getElementById("saveClassBtn").textContent = "Update Class";
+  document.getElementById("saveClassBtn").textContent = "Actualizar Clase";
 }
 
 function resetClassForm() {
@@ -251,5 +251,5 @@ function resetClassForm() {
     form.reset();
   }
   document.getElementById("classId").value = "";
-  document.getElementById("saveClassBtn").textContent = "Save Class";
+  document.getElementById("saveClassBtn").textContent = "Guardar Clase";
 }

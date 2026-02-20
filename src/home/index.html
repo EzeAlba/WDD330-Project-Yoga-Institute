@@ -1,15 +1,15 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="MOOD - Yoga Institute Platform for class booking, attendance tracking, and management"
+      content="MOOD - Plataforma del Instituto de Yoga para reserva de clases, seguimiento de asistencia y administración"
     />
     <meta name="theme-color" content="#845A6D" />
 
-    <title>MOOD - Home</title>
+    <title>MOOD - Inicio</title>
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="../css/style.css" />
@@ -23,12 +23,14 @@
       <section id="home" class="section">
         <div class="container">
           <div class="hero">
-            <h2>Welcome to MOOD</h2>
-            <p>Your Personal Yoga Journey Starts Here</p>
+            <h2>Bienvenido a MOOD</h2>
+            <p>Tu Viaje Personal de Yoga Comienza Aquí</p>
             <div id="authContainer">
-              <button id="loginBtn" class="btn btn-primary">Login</button>
+              <button id="loginBtn" class="btn btn-primary">
+                Iniciar Sesión
+              </button>
               <button id="registerBtn" class="btn btn-secondary">
-                Register
+                Registrarse
               </button>
             </div>
             <div id="userGreeting" style="display: none">
@@ -43,17 +45,17 @@
     <div id="loginModal" class="modal" style="display: none">
       <div class="modal-content">
         <span class="close" id="closeLoginModal">&times;</span>
-        <h2>Login</h2>
+        <h2>Iniciar Sesión</h2>
         <form id="loginForm" class="form">
           <div class="form-group">
-            <label for="loginEmail">Email:</label>
+            <label for="loginEmail">Correo Electrónico:</label>
             <input type="email" id="loginEmail" class="input" required />
           </div>
           <div class="form-group">
-            <label for="loginPassword">Password:</label>
+            <label for="loginPassword">Contraseña:</label>
             <input type="password" id="loginPassword" class="input" required />
           </div>
-          <button type="submit" class="btn btn-primary">Login</button>
+          <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
         </form>
       </div>
     </div>
@@ -62,14 +64,14 @@
     <div id="registerModal" class="modal" style="display: none">
       <div class="modal-content">
         <span class="close" id="closeRegisterModal">&times;</span>
-        <h2>Register</h2>
+        <h2>Registrarse</h2>
         <form id="registerForm" class="form">
           <div class="form-group">
-            <label for="registerEmail">Email:</label>
+            <label for="registerEmail">Correo Electrónico:</label>
             <input type="email" id="registerEmail" class="input" required />
           </div>
           <div class="form-group">
-            <label for="registerPassword">Password:</label>
+            <label for="registerPassword">Contraseña:</label>
             <input
               type="password"
               id="registerPassword"
@@ -78,17 +80,17 @@
             />
           </div>
           <div class="form-group">
-            <label for="registerName">Full Name:</label>
+            <label for="registerName">Nombre Completo:</label>
             <input type="text" id="registerName" class="input" required />
           </div>
           <div class="form-group">
-            <label for="registerRole">Account Type:</label>
+            <label for="registerRole">Tipo de Cuenta:</label>
             <select id="registerRole" class="input" required>
-              <option value="student">Student</option>
+              <option value="student">Estudiante</option>
               <option value="instructor">Instructor</option>
             </select>
           </div>
-          <button type="submit" class="btn btn-primary">Register</button>
+          <button type="submit" class="btn btn-primary">Registrarse</button>
         </form>
       </div>
     </div>

@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="MOOD - User Profile" />
+    <meta name="description" content="MOOD - Perfil del Usuario" />
     <meta name="theme-color" content="#845A6D" />
 
-    <title>MOOD - Profile</title>
+    <title>MOOD - Perfil</title>
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="../css/style.css" />
@@ -25,32 +25,41 @@
                 <!-- User information will be loaded here -->
               </div>
               <nav class="profile-nav">
-                <button class="profile-nav-btn active" data-tab="enrollments">
-                  My Enrollments
+                <button class="profile-nav-btn active" data-tab="profile-info">
+                  Mi Perfil
+                </button>
+                <button class="profile-nav-btn" data-tab="enrollments">
+                  Mis Inscripciones
                 </button>
                 <button class="profile-nav-btn" data-tab="payments">
-                  Payments
+                  Pagos
                 </button>
                 <button class="profile-nav-btn" data-tab="attendance">
-                  Attendance
+                  Asistencia
                 </button>
               </nav>
             </div>
             <div class="profile-main">
-              <div id="enrollments" class="profile-tab active">
-                <h3>My Enrolled Classes</h3>
+              <div id="profile-info" class="profile-tab active">
+                <h3>Mi Perfil</h3>
+                <div id="profileInfoContainer">
+                  <!-- Profile information will be displayed here -->
+                </div>
+              </div>
+              <div id="enrollments" class="profile-tab">
+                <h3>Mis Clases Inscritas</h3>
                 <div id="enrollmentsContainer">
                   <!-- Enrolled classes will be displayed here -->
                 </div>
               </div>
               <div id="payments" class="profile-tab">
-                <h3>Payment History</h3>
+                <h3>Historial de Pagos</h3>
                 <div id="paymentsContainer">
                   <!-- Payment history will be displayed here -->
                 </div>
               </div>
               <div id="attendance" class="profile-tab">
-                <h3>Attendance Records</h3>
+                <h3>Registros de Asistencia</h3>
                 <div id="attendanceContainer">
                   <!-- Attendance records will be displayed here -->
                 </div>
@@ -60,6 +69,90 @@
         </div>
       </section>
     </main>
+
+    <!-- Modal for Edit Profile -->
+    <div id="editProfileModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <span class="close" id="closeEditProfileModal">&times;</span>
+        <h2>Editar Perfil</h2>
+        <form id="editProfileForm" class="form">
+          <!-- Profile Picture -->
+          <div class="form-group">
+            <label for="editProfilePicture">Foto de Perfil:</label>
+            <div id="currentProfilePicturePreview" style="margin-bottom: 10px">
+              <img
+                id="currentProfileImage"
+                src=""
+                alt="Perfil Actual"
+                style="max-width: 150px; border-radius: 8px"
+              />
+            </div>
+            <input
+              type="file"
+              id="editProfilePicture"
+              class="input"
+              accept="image/*"
+            />
+            <small class="text-muted"
+              >Dejar en blanco para mantener la foto actual</small
+            >
+            <div
+              id="editProfilePicturePreview"
+              style="margin-top: 10px; display: none"
+            >
+              <img
+                id="editPreviewImage"
+                src=""
+                alt="Nueva Vista Previa de Perfil"
+                style="max-width: 150px; border-radius: 8px"
+              />
+            </div>
+          </div>
+
+          <!-- Phone Number -->
+          <div class="form-group">
+            <label for="editPhoneNumber">Número de Teléfono:</label>
+            <input
+              type="tel"
+              id="editPhoneNumber"
+              class="input"
+              placeholder="+54 (11) 1234-5678"
+              required
+            />
+          </div>
+
+          <!-- Health History (Students Only) -->
+          <div id="editHealthHistorySection" style="display: none">
+            <div class="form-group">
+              <label for="editHealthHistory">Historial de Salud:</label>
+              <p class="text-muted" style="font-size: 12px; margin: 10px 0">
+                Cuentanos sobre cualquier lesión o enfermedad crónica
+              </p>
+              <textarea
+                id="editHealthHistory"
+                class="input"
+                rows="4"
+                placeholder="p. ej., Dolor de espalda baja, lesión de rodilla, artritis, asma, etc. (o 'Ninguno')"
+              ></textarea>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px">
+            <button type="submit" class="btn btn-primary" style="flex: 1">
+              Guardar Cambios
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              id="cancelEditProfileBtn"
+              style="flex: 1"
+            >
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
 
     <!-- Footer will be dynamically injected here -->
     <footer id="dy-footer"></footer>

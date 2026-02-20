@@ -150,7 +150,9 @@ export default class AuthManager {
       // Ignore COOP/popup warnings - they're browser console warnings, not actual errors
       // Only handle actual Firebase auth errors
       if (error.code === "auth/popup-blocked") {
-        throw new Error("Pop-up was blocked by your browser. Please allow pop-ups and try again.");
+        throw new Error(
+          "Pop-up was blocked by your browser. Please allow pop-ups and try again.",
+        );
       }
       if (error.code === "auth/cancelled-popup-request") {
         // User cancelled - don't show error notification, just return
@@ -174,7 +176,7 @@ export default class AuthManager {
           firebaseUser.email?.split("@")[0],
         email: firebaseUser.email,
         role: overrides.role || "student",
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
       });
       return;
     }
@@ -202,7 +204,7 @@ export default class AuthManager {
         name: firebaseUser.displayName || firebaseUser.email?.split("@")[0],
         email: firebaseUser.email,
         role: "student",
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
       };
       await setDoc(userRef, newUser);
       return {
@@ -222,8 +224,82 @@ export default class AuthManager {
         firebaseUser.email?.split("@")[0],
       email: data.email || firebaseUser.email,
       role: data.role || "student",
+      phoneNumber: data.phoneNumber,
+      profilePicture: data.profilePicture,
+      healthHistory: data.healthHistory,
+      profileCompleted: data.profileCompleted,
+      profileCompletedAt: data.profileCompletedAt,
+      createdAt:
+        typeof data.createdAt === "string"
+          ? data.createdAt
+          : data.createdAt?.toDate?.()?.toISOString?.() ||
+            new Date().toISOString(),
       loginTime: new Date().toISOString(),
     };
+  }
+
+  /**
+   * Update user profile with additional information (phone, health history, picture)
+   */
+  async updateProfileInfo(profileData) {
+    try {
+      if (!this.currentUser) {
+        throw new Error("User not authenticated");
+      }
+
+      const userRef = doc(db, "users", this.currentUser.id);
+      const updates = {};
+
+      if (profileData.phoneNumber) {
+        updates.phoneNumber = profileData.phoneNumber;
+      }
+
+      if (profileData.healthHistory !== undefined) {
+        updates.healthHistory = profileData.healthHistory;
+      }
+
+      if (profileData.profilePictureBase64) {
+        updates.profilePicture = profileData.profilePictureBase64;
+      }
+
+      // Mark profile as complete
+      updates.profileCompleted = true;
+      updates.profileCompletedAt = new Date().toISOString();
+
+      await setDoc(userRef, updates, { merge: true });
+
+      // Update current user in memory
+      this.currentUser = { ...this.currentUser, ...updates };
+      this.saveUser(this.currentUser);
+
+      return this.currentUser;
+    } catch (error) {
+      this.lastError = error;
+      throw error;
+    }
+  }
+
+  /**
+   * Convert file to base64 string
+   */
+  async fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      // eslint-disable-next-line no-undef
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  /**
+   * Check if user profile is incomplete
+   */
+  isProfileIncomplete() {
+    return (
+      this.currentUser &&
+      (!this.currentUser.profileCompleted || !this.currentUser.phoneNumber)
+    );
   }
 
   setSession(user) {

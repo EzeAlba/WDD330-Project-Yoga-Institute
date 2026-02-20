@@ -44,7 +44,10 @@ class MoodApp {
       this.checkAuthStatus();
       this.initialized = true;
     } catch {
-      uiManager?.showNotification("Failed to initialize application", "error");
+      uiManager?.showNotification(
+        "Falló al inicializar la aplicación",
+        "error",
+      );
     }
   }
 
@@ -75,7 +78,10 @@ class MoodApp {
         enrollmentManager.getMyEnrollments();
       }
     } catch {
-      uiManager?.showNotification("Failed to load initial data", "error");
+      uiManager?.showNotification(
+        "Falló al cargar los datos iniciales",
+        "error",
+      );
     }
   }
 
@@ -193,11 +199,13 @@ async function loadUserProfile() {
                 <h3>${user.name}</h3>
                 <p class="text-muted">${user.email}</p>
                 <p style="margin-top: 15px;">
-                    <strong>Enrollments:</strong> ${enrollments.length}<br>
-                    <strong>Payments:</strong> ${payments.length}
+                    <strong>Inscripciones:</strong> ${enrollments.length}<br>
+                    <strong>Pagos:</strong> ${payments.length}
                 </p>
             `;
 
+      // Load profile info tab
+      loadProfileInfoTab();
       // Load enrollments tab
       await loadEnrollmentsTab();
       // Load payments tab
@@ -215,6 +223,15 @@ async function loadUserProfile() {
                     <strong>Classes:</strong> ${classes.length}
                 </p>
             `;
+
+      // Load profile info tab
+      loadProfileInfoTab();
+      // Load enrollments tab
+      await loadEnrollmentsTab();
+      // Load payments tab
+      loadPaymentsTab();
+      // Load attendance tab
+      loadAttendanceTab();
     } else if (user.role === "admin") {
       userInfoDiv.innerHTML = `
                 <div class="user-avatar">👨‍💼</div>
@@ -222,9 +239,268 @@ async function loadUserProfile() {
                 <p class="text-muted">${user.email}</p>
                 <p style="margin-top: 15px;">Administrator</p>
             `;
+
+      // Load profile info tab for admin too
+      loadProfileInfoTab();
     }
   } catch {
-    uiManager?.showNotification("Failed to load user profile", "error");
+    uiManager?.showNotification(
+      "Falló al cargar el perfil del usuario",
+      "error",
+    );
+  }
+}
+
+/**
+ * Load profile info tab
+ */
+function loadProfileInfoTab() {
+  try {
+    const user = authManager.getCurrentUser();
+    if (!user) return;
+
+    const container = document.getElementById("profileInfoContainer");
+    if (!container) return;
+
+    let profileHTML = `
+      <div style="background-color: #F9F9F9; padding: 20px; border-radius: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h4 style="margin: 0;">Profile Information</h4>
+          <button class="btn btn-secondary" id="editProfileBtn" style="padding: 6px 12px; font-size: 12px;">Editar Perfil</button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 150px 1fr; gap: 20px; align-items: start;">
+          <!-- Profile Picture -->
+          <div style="text-align: center;">
+            <div style="width: 150px; height: 150px; background-color: #E8E8E8; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+              ${
+                user.profilePicture
+                  ? `<img src="${user.profilePicture}" alt="${user.name}" style="width: 100%; height: 100%; object-fit: cover;">`
+                  : `<span style="font-size: 48px;">📷</span>`
+              }
+            </div>
+          </div>
+
+          <!-- Profile Information -->
+          <div>
+            <div style="margin-bottom: 15px;">
+              <label style="font-weight: 600; color: #333;">Nombre:</label>
+              <p style="margin: 5px 0 0 0;">${user.name}</p>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+              <label style="font-weight: 600; color: #333;">Correo Electrónico:</label>
+              <p style="margin: 5px 0 0 0;">${user.email}</p>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+              <label style="font-weight: 600; color: #333;">Número de Teléfono:</label>
+              <p style="margin: 5px 0 0 0;">${user.phoneNumber || "Sin proporcionar"}</p>
+            </div>
+
+            ${
+              user.role === "student"
+                ? `
+              <div style="margin-bottom: 15px;">
+                <label style="font-weight: 600; color: #333;">Historial de Salud:</label>
+                <p style="margin: 5px 0 0 0; color: ${user.healthHistory ? "#333" : "#999"};">
+                  ${user.healthHistory ? user.healthHistory : "Sin proporcionar"}
+                </p>
+              </div>
+            `
+                : ""
+            }
+
+            <div style="margin-bottom: 15px;">
+              <label style="font-weight: 600; color: #333;">Tipo de Cuenta:</label>
+              <p style="margin: 5px 0 0 0; text-transform: capitalize;">${user.role}</p>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+              <label style="font-weight: 600; color: #333;">Miembro desde:</label>
+              <p style="margin: 5px 0 0 0;">
+                ${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "Unknown"}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    container.innerHTML = profileHTML;
+
+    // Setup edit profile button
+    const editBtn = container.querySelector("#editProfileBtn");
+    if (editBtn) {
+      editBtn.addEventListener("click", () => {
+        openEditProfileModal(user);
+      });
+    }
+  } catch {
+    uiManager?.showNotification(
+      "Falló al cargar la información del perfil",
+      "error",
+    );
+  }
+}
+
+/**
+ * Open edit profile modal
+ */
+function openEditProfileModal(user) {
+  const modal = document.getElementById("editProfileModal");
+  const editHealthSection = document.getElementById("editHealthHistorySection");
+
+  if (!modal) return;
+
+  // Mostrar sección de historial de salud solo para estudiantes
+  if (editHealthSection) {
+    editHealthSection.style.display =
+      user.role === "student" ? "block" : "none";
+  }
+
+  // Populate form with current data
+  document.getElementById("editPhoneNumber").value = user.phoneNumber || "";
+  if (user.role === "student") {
+    document.getElementById("editHealthHistory").value =
+      user.healthHistory || "";
+  }
+
+  // Manejar vista previa de foto de perfil
+  const editPictureInput = document.getElementById("editProfilePicture");
+  const editPicturePreview = document.getElementById(
+    "editProfilePicturePreview",
+  );
+  const editPreviewImage = document.getElementById("editPreviewImage");
+  const currentPreview = document.getElementById("currentProfileImage");
+
+  if (user.profilePicture) {
+    currentPreview.src = user.profilePicture;
+    document.getElementById("currentProfilePicturePreview").style.display =
+      "block";
+  } else {
+    document.getElementById("currentProfilePicturePreview").style.display =
+      "none";
+  }
+
+  if (editPictureInput) {
+    editPictureInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        if (!file.type.startsWith("image/")) {
+          uiManager?.showNotification(
+            "Por favor selecciona un archivo de imagen válido",
+            "error",
+          );
+          editPictureInput.value = "";
+          return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+          uiManager?.showNotification(
+            "El tamaño de la imagen no debe exceder 5MB",
+            "error",
+          );
+          editPictureInput.value = "";
+          return;
+        }
+
+        // eslint-disable-next-line no-undef
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          editPreviewImage.src = event.target.result;
+          editPicturePreview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  // Handle form submission
+  const editForm = document.getElementById("editProfileForm");
+  if (editForm) {
+    editForm.onsubmit = async (e) => {
+      e.preventDefault();
+      await handleEditProfileSubmit();
+    };
+  }
+
+  // Manejar botón cerrar
+  const closeBtn = document.getElementById("closeEditProfileModal");
+  if (closeBtn) {
+    closeBtn.onclick = () => {
+      modal.style.display = "none";
+    };
+  }
+
+  // Manejar botón cancelar
+  const cancelBtn = document.getElementById("cancelEditProfileBtn");
+  if (cancelBtn) {
+    cancelBtn.addEventListener("click", () => {
+      modal.style.display = "none";
+    });
+  }
+
+  modal.style.display = "flex";
+}
+
+/**
+ * Handle edit profile form submission
+ */
+async function handleEditProfileSubmit() {
+  try {
+    const phoneNumber = document.getElementById("editPhoneNumber").value.trim();
+    const editPictureInput = document.getElementById("editProfilePicture");
+    const user = authManager.getCurrentUser();
+
+    if (!phoneNumber) {
+      uiManager?.showNotification(
+        "El número de teléfono es requerido",
+        "error",
+      );
+      return;
+    }
+
+    const profileData = {
+      phoneNumber,
+    };
+
+    if (user.role === "student") {
+      const healthHistory = document
+        .getElementById("editHealthHistory")
+        .value.trim();
+      if (!healthHistory) {
+        uiManager?.showNotification(
+          "El historial de salud es requerido",
+          "error",
+        );
+        return;
+      }
+      profileData.healthHistory = healthHistory;
+    }
+
+    // Only convert new picture if one was selected
+    if (editPictureInput.files[0]) {
+      profileData.profilePictureBase64 = await authManager.fileToBase64(
+        editPictureInput.files[0],
+      );
+    }
+
+    // Update profile
+    await authManager.updateProfileInfo(profileData);
+
+    uiManager?.showNotification("¡Perfil actualizado exitosamente!", "success");
+    document.getElementById("editProfileModal").style.display = "none";
+    document.getElementById("editProfileForm").reset();
+    document.getElementById("editProfilePicturePreview").style.display = "none";
+
+    // Reload profile info with updated user data
+    loadProfileInfoTab();
+  } catch (error) {
+    uiManager?.showNotification(
+      error.message || "Falló al actualizar el perfil",
+      "error",
+    );
   }
 }
 
@@ -238,7 +514,8 @@ async function loadEnrollmentsTab() {
     container.innerHTML = "";
 
     if (enrollments.length === 0) {
-      container.innerHTML = '<p class="text-muted">No enrollments yet</p>';
+      container.innerHTML =
+        '<p class="text-muted">No hay inscripciones aún</p>';
       return;
     }
 
@@ -251,7 +528,7 @@ async function loadEnrollmentsTab() {
                 <h4>${yogaClass.title}</h4>
                 <p><strong>Instructor:</strong> ${yogaClass.instructor}</p>
                 <p><strong>Schedule:</strong> ${yogaClass.schedule.day} at ${yogaClass.schedule.time}</p>
-                <p><strong>Status:</strong> <span style="color: ${enrollment.status === "active" ? "#4CAF50" : "#f44336"}">${enrollment.status}</span></p>
+                <p><strong>Estado:</strong> <span style="color: ${enrollment.status === "active" ? "#4CAF50" : "#f44336"}">${enrollment.status === "active" ? "Activo" : "Inactivo"}</span></p>
                 <p><strong>Payment:</strong> ${enrollment.paymentStatus}</p>
                 ${
                   enrollment.paymentStatus === "pending"

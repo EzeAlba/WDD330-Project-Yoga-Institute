@@ -44,7 +44,9 @@ export default class UIManager {
     if (googleLoginBtn) {
       googleLoginBtn.addEventListener("click", () => this.handleGoogleLogin());
     }
-    attachListener("closeLoginModal", "click", () => this.closeModal("loginModal"));
+    attachListener("closeLoginModal", "click", () =>
+      this.closeModal("loginModal"),
+    );
 
     // Register Form
     attachListener("registerForm", "submit", (e) => this.handleRegister(e));
@@ -54,7 +56,9 @@ export default class UIManager {
         this.handleGoogleLogin(),
       );
     }
-    attachListener("closeRegisterModal", "click", () => this.closeModal("registerModal"));
+    attachListener("closeRegisterModal", "click", () =>
+      this.closeModal("registerModal"),
+    );
 
     // Filters
     attachListener("searchInput", "input", () => this.filterClasses());
@@ -81,7 +85,7 @@ export default class UIManager {
     const user = this.authManager.getCurrentUser();
 
     // Helper to safely update element visibility
-    const updateElement = (selector, display, property = "style") => {
+    const updateElement = (selector, display) => {
       const element = document.getElementById(selector);
       if (element) {
         element.style.display = display;
@@ -97,17 +101,17 @@ export default class UIManager {
     };
 
     if (isAuthenticated && user) {
-      // Hide auth buttons
+      // Ocultar botones de autenticación
       updateElement("authContainer", "none");
       updateElement("userGreeting", "block");
-      updateText("greetingText", `Welcome, ${user.name}!`);
+      updateText("greetingText", `¡Bienvenido, ${user.name}!`);
       updateElement("profileLink", "block");
       updateElement("logoutLink", "block");
 
       // Load classes
       this.loadClasses();
     } else {
-      // Show auth buttons
+      // Mostrar botones de autenticación
       updateElement("authContainer", "flex");
       updateElement("userGreeting", "none");
       updateElement("profileLink", "none");
@@ -123,7 +127,7 @@ export default class UIManager {
       const classes = await this.classManager.getAllClasses();
       this.displayClasses(classes);
     } catch {
-      this.showNotification("Failed to load classes", "error");
+      this.showNotification("No se encontraron clases", "info");
     }
   }
 
@@ -136,7 +140,7 @@ export default class UIManager {
 
     if (classes.length === 0) {
       container.innerHTML =
-        '<p class="text-center text-muted">No classes found</p>';
+        '<p class="text-center text-muted">No se encontraron clases</p>';
       return;
     }
 
@@ -166,7 +170,7 @@ export default class UIManager {
             </div>
             <div class="class-card-footer">
                 <span class="class-price">$${yogaClass.price}</span>
-                <button class="btn btn-primary" data-class-id="${yogaClass.id}">View Details</button>
+                <button class="btn btn-primary" data-class-id="${yogaClass.id}">Ver Detalles</button>
             </div>
         `;
 
@@ -200,14 +204,15 @@ export default class UIManager {
                 <p><strong>Available Spots:</strong> ${availableSpots} / ${yogaClass.maxStudents}</p>
                 <p><strong>Description:</strong></p>
                 <p>${yogaClass.description}</p>
-                ${user && user.role === "student"
-          ? `
+                ${
+                  user && user.role === "student"
+                    ? `
                     <button class="btn btn-primary" id="enrollBtn" ${isEnrolled ? "disabled" : ""}>
                         ${isEnrolled ? "Already Enrolled" : "Enroll Now"}
                     </button>
                 `
-          : ""
-        }
+                    : ""
+                }
             `;
 
       if (user && user.role === "student" && !isEnrolled) {
@@ -218,7 +223,10 @@ export default class UIManager {
 
       this.openModal("classModal");
     } catch {
-      this.showNotification("Failed to load class details", "error");
+      this.showNotification(
+        "No se pudo cargar los detalles de la clase",
+        "error",
+      );
     }
   }
 
@@ -228,11 +236,14 @@ export default class UIManager {
   async enrollInClass(classId) {
     try {
       await this.enrollmentManager.enrollStudent(classId);
-      this.showNotification("Successfully enrolled in class!", "success");
+      this.showNotification(
+        "¡Se inscribió en la clase exitosamente!",
+        "success",
+      );
       this.closeModal("classModal");
       this.loadClasses();
     } catch (error) {
-      this.showNotification(error.message || "Enrollment failed", "error");
+      this.showNotification(error.message || "Falló la inscripción", "error");
     }
   }
 
@@ -263,16 +274,19 @@ export default class UIManager {
 
     try {
       await this.authManager.login(email, password);
-      this.showNotification("Login successful!", "success");
+      this.showNotification("¡Inicio de sesión exitoso!", "success");
       this.closeModal("loginModal");
       document.getElementById("loginForm").reset();
 
-      // Refresh page to show correct content based on user role
+      // Refrescar la página para mostrar el contenido correcto basado en el rol del usuario
       setTimeout(() => {
         window.location.href = "/index.html";
       }, 500);
     } catch {
-      this.showNotification("Login failed. Please try again.", "error");
+      this.showNotification(
+        "Falló el inicio de sesión. Por favor intenta de nuevo.",
+        "error",
+      );
     }
   }
 
@@ -288,16 +302,159 @@ export default class UIManager {
 
     try {
       await this.authManager.register(email, password, name, role);
-      this.showNotification("Registration successful!", "success");
+      this.showNotification("¡Registro exitoso!", "success");
       this.closeModal("registerModal");
       document.getElementById("registerForm").reset();
 
-      // Refresh page to show correct content based on user role
+      // Mostrar modal de completamiento de perfil basado en el rol
+      this.showProfileCompletionModal(role);
+    } catch {
+      this.showNotification(
+        "Falló el registro. Por favor intenta de nuevo.",
+        "error",
+      );
+    }
+  }
+
+  /**
+   * Show profile completion modal
+   */
+  showProfileCompletionModal(role) {
+    const modal = document.getElementById("profileCompletionModal");
+    const healthSection = document.getElementById("healthHistorySection");
+
+    if (!modal) return;
+
+    // Show health history section only for students
+    if (healthSection) {
+      healthSection.style.display = role === "student" ? "block" : "none";
+    }
+
+    modal.style.display = "flex";
+    this.setupProfileCompletionForm();
+  }
+
+  /**
+   * Setup profile completion form handlers
+   */
+  setupProfileCompletionForm() {
+    const form = document.getElementById("profileCompletionForm");
+    const profilePictureInput = document.getElementById("profilePicture");
+    const profilePicturePreview = document.getElementById(
+      "profilePicturePreview",
+    );
+    const previewImage = document.getElementById("previewImage");
+    const closeProfileModal = document.getElementById("closeProfileModal");
+
+    if (profilePictureInput) {
+      profilePictureInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          // Validate file type
+          if (!file.type.startsWith("image/")) {
+            this.showNotification(
+              "Por favor selecciona un archivo de imagen válido",
+              "error",
+            );
+            profilePictureInput.value = "";
+            return;
+          }
+
+          // Validar tamaño de archivo (5MB)
+          if (file.size > 5 * 1024 * 1024) {
+            this.showNotification(
+              "El tamaño de la imagen no debe exceder 5MB",
+              "error",
+            );
+            profilePictureInput.value = "";
+            return;
+          }
+
+          // Mostrar vista previa
+          // eslint-disable-next-line no-undef
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            previewImage.src = event.target.result;
+            profilePicturePreview.style.display = "block";
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+
+    if (form) {
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        await this.handleProfileCompletion();
+      });
+    }
+
+    if (closeProfileModal) {
+      closeProfileModal.addEventListener("click", () => {
+        this.closeModal("profileCompletionModal");
+      });
+    }
+  }
+
+  /**
+   * Handle profile completion form submission
+   */
+  async handleProfileCompletion() {
+    const profilePictureInput = document.getElementById("profilePicture");
+    const phoneNumber = document.getElementById("phoneNumber").value.trim();
+    const healthHistory = document.getElementById("healthHistory").value.trim();
+    const user = this.authManager.getCurrentUser();
+
+    if (!phoneNumber) {
+      this.showNotification("El número de teléfono es requerido", "error");
+      return;
+    }
+
+    if (!profilePictureInput.files[0]) {
+      this.showNotification("La foto de perfil es requerida", "error");
+      return;
+    }
+
+    if (user.role === "student" && !healthHistory) {
+      this.showNotification(
+        "El historial de salud es requerido para estudiantes",
+        "error",
+      );
+      return;
+    }
+
+    try {
+      // Convert profile picture to base64
+      const profilePictureBase64 = await this.authManager.fileToBase64(
+        profilePictureInput.files[0],
+      );
+
+      // Update profile
+      const profileData = {
+        phoneNumber,
+        profilePictureBase64,
+      };
+
+      if (user.role === "student") {
+        profileData.healthHistory = healthHistory;
+      }
+
+      await this.authManager.updateProfileInfo(profileData);
+
+      this.showNotification("¡Perfil completado exitosamente!", "success");
+      this.closeModal("profileCompletionModal");
+      document.getElementById("profileCompletionForm").reset();
+      document.getElementById("profilePicturePreview").style.display = "none";
+
+      // Refresh page to show updated user data
       setTimeout(() => {
         window.location.href = "/index.html";
-      }, 500);
-    } catch {
-      this.showNotification("Registration failed. Please try again.", "error");
+      }, 1000);
+    } catch (error) {
+      this.showNotification(
+        error.message || "No se pudo completar el perfil",
+        "error",
+      );
     }
   }
 
@@ -306,7 +463,7 @@ export default class UIManager {
    */
   async handleLogout() {
     await this.authManager.logout();
-    this.showNotification("Logged out successfully", "success");
+    this.showNotification("Sesión cerrada exitosamente", "success");
 
     // Navigate to home and refresh the page to clear all cached content
     setTimeout(() => {
@@ -321,27 +478,31 @@ export default class UIManager {
     try {
       const result = await this.authManager.loginWithGoogle();
 
-      // Only proceed if login was successful (not cancelled)
+      // Solo proceder si el inicio de sesión fue exitoso (no cancelado)
       if (!result) return;
 
-      this.showNotification("Login successful!", "success");
+      this.showNotification("¡Inicio de sesión exitoso!", "success");
 
-      // Close both modals in case they were opened from either
+      // Cerrar ambos modales en caso de que fueron abiertos desde cualquiera
       this.closeModal("loginModal");
       this.closeModal("registerModal");
 
-      // Reset both forms
+      // Restablecer ambos formularios
       const loginForm = document.getElementById("loginForm");
       const registerForm = document.getElementById("registerForm");
       if (loginForm) loginForm.reset();
       if (registerForm) registerForm.reset();
 
-      // Refresh page to show correct content based on user role
+      // Refrescar página para mostrar contenido correcto basado en el rol del usuario
       setTimeout(() => {
         window.location.href = "/index.html";
       }, 500);
     } catch (error) {
-      this.showNotification(error.message || "Google login failed. Please try again.", "error");
+      this.showNotification(
+        error.message ||
+          "Falló el inicio de sesión con Google. Por favor intenta de nuevo.",
+        "error",
+      );
     }
   }
 
@@ -356,17 +517,23 @@ export default class UIManager {
     container.innerHTML = "";
 
     const widgets = [
-      { title: "Total Classes", value: dashboard.stats.totalClasses },
-      { title: "Total Enrollments", value: dashboard.stats.totalEnrollments },
-      { title: "Total Students", value: dashboard.stats.totalStudents },
-      { title: "Total Instructors", value: dashboard.stats.totalInstructors },
+      { title: "Total de Clases", value: dashboard.stats.totalClasses },
       {
-        title: "Total Revenue",
+        title: "Total de Inscripciones",
+        value: dashboard.stats.totalEnrollments,
+      },
+      { title: "Total de Estudiantes", value: dashboard.stats.totalStudents },
+      {
+        title: "Total de Instructores",
+        value: dashboard.stats.totalInstructors,
+      },
+      {
+        title: "Ingresos Totales",
         value: `$${dashboard.stats.totalRevenue.toFixed(2)}`,
       },
-      { title: "Pending Payments", value: dashboard.stats.pendingPayments },
+      { title: "Pagos Pendientes", value: dashboard.stats.pendingPayments },
       {
-        title: "Average Occupancy",
+        title: "Ocupación Promedio",
         value: `${dashboard.stats.classOccupancy}%`,
       },
     ];
